@@ -1,0 +1,16 @@
+{
+  "name": "daveai-vercel",
+  "version": "1.0.0",
+  "description": "DaveAI — Vercel backend with secure server-side API key management",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "devDependencies": {
+    "vercel": "^37.0.0"
+  }
+}
