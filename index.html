@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4983,11 +4984,12 @@ function init() {
   // BUG FIX: Enable send button on load if a key is already saved
   // Force inject hardcoded key into ALL possible storage locations so button is never blocked
   (function() {
-    // Sync settings.groqKey into providerSettings on every load
+    // Keys are managed server-side — inject sentinel so key checks never block
     if (typeof providerSettings !== 'undefined') {
       if (!providerSettings.groq) providerSettings.groq = {};
-      if (!providerSettings.groq.key && settings.groqKey) {
-        providerSettings.groq.key = settings.groqKey;
+      if (!settings.groqKey) settings.groqKey = 'server-managed';
+      if (!providerSettings.groq.key) {
+        providerSettings.groq.key = settings.groqKey || 'server-managed';
         localStorage.setItem('daveai_providers21', JSON.stringify(providerSettings));
       }
     }
@@ -5918,15 +5920,10 @@ async function sendMessage() {
   const inp = document.getElementById('chat-input');
   const rawText = inp.value.trim();
   if ((!rawText && !attachments.length) || isStreaming) return;
-  // ── KEY GATE: accept Gemini pool key OR Groq key — never block if Gemini is active ──
-  const _activePid = providerSettings?._active || 'google';
-  const _smKey = 'server-managed'; // keys handled by /api/chat
-  // Only assign Gemini key to groqKey if the user hasn't set their own Groq key
-  if (_activePid === 'groq' && !settings.groqKey && _smKey) settings.groqKey = _smKey;
-  if (_activePid === 'groq' && _smKey && providerSettings?.groq && !providerSettings.groq.key) providerSettings.groq.key = _smKey;
-  // Block ONLY if both Gemini pool AND Groq key are absent
-  const _hasGemini = _GEMINI_KEY_POOL && _GEMINI_KEY_POOL.length > 0;
-  if (!_smKey && !_hasGemini) { openPanel('settings'); showToast('⚠️ Add your API key in Settings to start chatting'); updateSendBtn(); return; }
+  // ── KEY GATE: keys are managed server-side via /api/chat — always proceed ──
+  // Set a sentinel value so downstream code that checks settings.groqKey doesn't block
+  if (!settings.groqKey) settings.groqKey = 'server-managed';
+  if (providerSettings?.groq && !providerSettings.groq.key) providerSettings.groq.key = 'server-managed';
 
   if (!currentConvoId) {
     currentConvoId = 'c_'+Date.now();
@@ -7468,8 +7465,6 @@ async function aiEditViaPollinations(imageDataURL, instruction) {
     if (r.ok) { const blob = await r.blob(); return await blobToDataURL(blob); }
   } catch(e){}
   return await urlToDataURL(url);
-}
-
   }; // end _aiEditFallback
   return await _aiEditFallback(imageDataURL, instruction);
 }
@@ -7514,8 +7509,6 @@ async function removeBgAPI(imageDataURL) {
     } catch(e){}
   }
   return null;
-}
-
   }; // end _originalRemoveBg
   return await _originalRemoveBg(imageDataURL);
 }
@@ -8047,7 +8040,7 @@ async function summarizeContext() {
 // ══════════════════════════════════════════════════════════════
 //  RENDER MESSAGES + WELCOME
 // ══════════════════════════════════════════════════════════════
-  function renderWelcome() {
+function renderWelcome() {
     document.getElementById('chat-side').classList.add('welcome-mode');
     const h = new Date().getHours();
     const greeting = h<12?'Good morning &#9728;&#65039;':h<17?'Good afternoon &#127788;&#65039;':h<21?'Good evening &#127769;':'Howdy &#127775;';
@@ -8592,17 +8585,13 @@ function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMe
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,180)+'px';}
 function updateSendBtn(){
   const hasText = !!document.getElementById('chat-input').value.trim() || attachments.length > 0;
-  // Always check all possible key sources including hardcoded fallback
-  const hasKey  = !!(
-    (typeof getActiveKey === 'function' && getActiveKey()) ||
-    settings.groqKey ||
-    (()=>{try{return JSON.parse(localStorage.getItem('daveai_providers21')||'{}')?.groq?.key}catch(e){return ''}})()
-  );
+  // Keys are managed server-side via /api/chat — always treat as having a valid key
+  const hasKey = true;
   const btn     = document.getElementById('send-btn');
   const banner  = document.getElementById('no-key-banner');
-  btn.disabled  = !hasText || isStreaming || !hasKey;
-  btn.title     = !hasKey ? 'Add your Groq API key in Settings to start chatting' : '';
-  if (banner) banner.style.display = !hasKey ? 'flex' : 'none';
+  btn.disabled  = !hasText || isStreaming;
+  btn.title     = '';
+  if (banner) banner.style.display = 'none';
 }
 function scrollBottom(smooth=false){const w=document.getElementById('messages-wrap');if(!w)return;if(smooth){w.scrollTo({top:w.scrollHeight,behavior:'smooth'});}else{w.scrollTop=w.scrollHeight;}}
 function toggleSidebar(){
@@ -13295,7 +13284,20 @@ document.addEventListener('keydown', e => {
 //  ENHANCED TOPBAR — prompt library & shortcuts buttons
 // ══════════════════════════════════════════════════════════════
 function injectTopbarButtons() {
-  // Topbar kept clean — only sidebar toggle + theme toggle
+  // Add Library button to input toolbar if not already there
+  const toolbar = document.querySelector('.input-toolbar');
+  if (toolbar && !document.getElementById('tb-lib-btn')) {
+    const sep = document.createElement('div');
+    sep.className = 'tool-separator';
+    const libBtn = document.createElement('button');
+    libBtn.id = 'tb-lib-btn';
+    libBtn.className = 'tool-btn';
+    libBtn.title = 'Prompt Library';
+    libBtn.innerHTML = '\uD83D\uDCDA Library';
+    libBtn.onclick = () => openPromptLib();
+    toolbar.appendChild(sep);
+    toolbar.appendChild(libBtn);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -14037,13 +14039,14 @@ function getActiveKey() {
   // For Google/Gemini: always return the current rotating pool key (not the static stored key)
   if (pid === 'google') {
     const { key } = _getGeminiKey();
-    return key || _GEMINI_KEY_POOL[0];
+    return key || _GEMINI_KEY_POOL[0] || 'server-managed';
   }
   // Fallback: if groq, also check settings.groqKey for backward compat
   const storedKey = providerSettings[pid]?.key || '';
   if (storedKey) return storedKey;
   if (pid === 'groq' && settings.groqKey) return settings.groqKey;
-  return '';
+  // Keys are managed server-side — return sentinel so nothing blocks
+  return 'server-managed';
 }
 
 function getActiveBaseUrl() {
@@ -15797,35 +15800,30 @@ function handleVisionFile(input) {
 async function runVisionAnalysis() {
   if (!visionImageData) { showToast('Upload an image first'); return; }
   const question = document.getElementById('vision-question').value.trim() || 'Describe this image in detail.';
-  // Use pool key rotation — fallback through all 5 keys automatically
-  const { key, idx: _vIdx } = _getGeminiKey();
 
   document.getElementById('vision-progress').style.display = 'block';
   document.getElementById('vision-result').style.display = 'none';
 
   try {
-    let resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+    // Route through /api/chat — server handles the Gemini vision key
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents:[{parts:[
-          {inline_data:{mime_type:'image/jpeg',data:visionImageData}},
-          {text: question}
-        ]}]
+        model: 'gemini-2.0-flash',
+        stream: false,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${visionImageData}` } },
+            { type: 'text', text: question }
+          ]
+        }]
       })
     });
-    // If this key is rate-limited, try next key in pool
-    if (resp.status === 429) {
-      _markGeminiLimited(_vIdx);
-      const { key: key2 } = _getGeminiKey();
-      resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key2}`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ contents:[{parts:[{inline_data:{mime_type:'image/jpeg',data:visionImageData}},{text:question}]}] })
-      });
-    }
     const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error?.message || 'Gemini API error');
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+    if (!resp.ok) throw new Error(data.error?.message || 'Vision API error');
+    const text = data.choices?.[0]?.message?.content || 'No response';
     document.getElementById('vision-progress').style.display = 'none';
     v33SetResult('vision', text);
   } catch(e) {
@@ -15846,8 +15844,11 @@ function handleAudioFile(input) {
 async function runAudioTranscription() {
   if (!audioFile) { showToast('Upload an audio file first'); return; }
   if (audioFile.size > 25*1024*1024) { showToast('File too large (max 25MB for Whisper)'); return; }
-  const key = (typeof getActiveKey==='function' ? getActiveKey() : null) || (typeof settings!=='undefined' ? settings.groqKey : '');
-  if (!key) { showToast('Set your Groq key in Settings'); return; }
+  // Audio transcription requires a real Groq key (binary FormData can't proxy via /api/chat)
+  // Use the user's configured key; if server-managed, prompt them to add a real key
+  const _rawKey = (typeof getActiveKey==='function' ? getActiveKey() : null) || (typeof settings!=='undefined' ? settings.groqKey : '');
+  const key = (_rawKey && _rawKey !== 'server-managed') ? _rawKey : '';
+  if (!key) { showToast('⚠️ Audio transcription needs a Groq API key — add GROQ_KEY_1 in Settings'); openPanel('settings'); return; }
   const lang = document.getElementById('audio-lang').value;
 
   document.getElementById('audio-progress').style.display = 'block';
