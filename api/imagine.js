@@ -6,9 +6,10 @@
  *
  * POST /api/imagine
  * {
- *   action:  "generate" | "edit" | "remove_bg",
+ *   action:  "generate" | "edit" | "remove_bg" | "fetch_as_base64",
  *   prompt:  "...",
  *   image:   "data:image/png;base64,…"  // for edit / remove_bg
+ *   url:     "https://…"                // for fetch_as_base64
  *   width:   1024,
  *   height:  768,
  *   seed:    12345,
@@ -17,8 +18,7 @@
  *
  * Returns:
  * {
- *   url:     "https://…"  // for generate (Pollinations returns a URL)
- *   dataURL: "data:…"     // for edit / remove_bg (base64 round-tripped)
+ *   dataURL: "data:…"     // always base64 — works in iframe, persists in Supabase
  * }
  * ─────────────────────────────────────────────────────────────
  */
@@ -57,6 +57,7 @@ export default async function handler(req, res) {
     action = 'generate',
     prompt = '',
     image,           // base64 data URL for edit operations
+    url,             // external URL for fetch_as_base64
     width = 1024,
     height = 768,
     seed = Math.floor(Math.random() * 99999),
@@ -76,6 +77,9 @@ export default async function handler(req, res) {
       case 'remove_bg':
         result = await handleRemoveBg({ image });
         break;
+      case 'fetch_as_base64':
+        result = await handleFetchAsBase64({ url });
+        break;
       default:
         res.writeHead(400, { ...corsHeaders(), 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: `Unknown action: ${action}` }));
@@ -91,10 +95,10 @@ export default async function handler(req, res) {
   }
 }
 
-// ── Generate: return a Pollinations URL ──────────────────────
-// Pollinations is free and doesn't need an API key, but by
-// proxying through Vercel we avoid CORS issues and can swap
-// providers later without touching the frontend.
+// ── Generate: fetch image server-side, return as dataURL ─────
+// Previously this only returned a URL (causing CORS issues in the
+// browser). Now we fetch the actual image bytes on the server and
+// return a base64 dataURL — works in iframes, persists in Supabase.
 async function handleGenerate({ prompt, width, height, seed, model }) {
   const params = new URLSearchParams({
     seed: String(seed),
@@ -105,23 +109,48 @@ async function handleGenerate({ prompt, width, height, seed, model }) {
   });
   if (model) params.set('model', model);
 
-  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?${params}`;
+  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?${params}`;
 
-  // Verify the URL is reachable (HEAD request — fast, no body download)
-  const check = await fetch(url, { method: 'HEAD' }).catch(() => null);
-  if (!check?.ok) {
-    throw new Error('Pollinations did not respond — try again');
+  const resp = await fetch(pollinationsUrl, { signal: AbortSignal.timeout(60000) });
+  if (!resp.ok) throw new Error(`Pollinations generate failed: HTTP ${resp.status}`);
+
+  const arrayBuffer = await resp.arrayBuffer();
+  const base64 = Buffer.from(arrayBuffer).toString('base64');
+  const contentType = resp.headers.get('content-type') || 'image/png';
+
+  return { dataURL: `data:${contentType};base64,${base64}` };
+}
+
+// ── Fetch as base64: download any URL server-side → dataURL ──
+// Used when the frontend needs to convert an external image URL
+// to base64 without hitting browser CORS restrictions.
+async function handleFetchAsBase64({ url }) {
+  if (!url) throw new Error('url is required for fetch_as_base64');
+
+  // Basic SSRF guard — only allow image hosts we trust
+  const allowed = [
+    'image.pollinations.ai',
+    'freeimage.host',
+    'ibb.co',
+  ];
+  let hostname;
+  try { hostname = new URL(url).hostname; } catch { throw new Error('Invalid URL'); }
+  if (!allowed.some(h => hostname === h || hostname.endsWith('.' + h))) {
+    throw new Error(`Host not allowed: ${hostname}`);
   }
 
-  return { url };
+  const resp = await fetch(url, { signal: AbortSignal.timeout(60000) });
+  if (!resp.ok) throw new Error(`Fetch failed: HTTP ${resp.status}`);
+
+  const arrayBuffer = await resp.arrayBuffer();
+  const base64 = Buffer.from(arrayBuffer).toString('base64');
+  const contentType = resp.headers.get('content-type') || 'image/png';
+
+  return { dataURL: `data:${contentType};base64,${base64}` };
 }
 
 // ── Edit: fetch the image server-side, return as dataURL ─────
-// This solves the browser CORS issue with Pollinations edit mode.
 async function handleEdit({ prompt, image, width, height, seed, model }) {
-  // If the user supplied a base64 image we need to host it so Pollinations can
-  // fetch it by URL. We use the Supabase storage bucket configured via env vars
-  // if available; otherwise we fall back to sending prompt-only generation.
   let publicImageUrl = null;
 
   if (image && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
@@ -140,7 +169,7 @@ async function handleEdit({ prompt, image, width, height, seed, model }) {
 
   const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?${params}`;
 
-  const resp = await fetch(url);
+  const resp = await fetch(url, { signal: AbortSignal.timeout(60000) });
   if (!resp.ok) throw new Error(`Pollinations edit failed: HTTP ${resp.status}`);
 
   const arrayBuffer = await resp.arrayBuffer();
@@ -155,11 +184,9 @@ async function handleRemoveBg({ image }) {
   const removeBgKey = process.env.REMOVE_BG_KEY;
 
   if (!removeBgKey) {
-    // No key configured — signal the frontend to use its canvas fallback
     return { fallback: true, reason: 'REMOVE_BG_KEY not configured' };
   }
 
-  // Decode base64 to buffer
   const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
   const imageBuffer = Buffer.from(base64Data, 'base64');
 
@@ -219,7 +246,7 @@ async function uploadImageToSupabase(dataURL, seed) {
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '10mb', // images can be large
+      sizeLimit: '10mb',
     },
   },
 };
