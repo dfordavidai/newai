@@ -5514,26 +5514,55 @@ async function generateImagePanel() {
   document.getElementById('imggen-result').style.display = 'none';
   const fullPrompt = prompt + style;
   const seed = Math.floor(Math.random() * 999999);
-  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?seed=${seed}&width=${w}&height=${h}&nologo=true&enhance=true`;
-  lastGeneratedImgUrl = url;
+  // Try proxy first (returns dataURL, bypasses CORS)
+  let dataURL = null;
+  try {
+    const r = await fetch('/api/imagine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'generate', prompt: fullPrompt, width: w, height: h, seed }),
+    });
+    if (r.ok) {
+      const data = await r.json();
+      if (data.dataURL) { dataURL = data.dataURL; }
+      else if (data.url) {
+        // Proxy gave URL — fetch image through proxy to get base64
+        try {
+          const r2 = await fetch('/api/imagine', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'fetch_as_base64', url: data.url }) });
+          if (r2.ok) { const d2 = await r2.json(); if (d2.dataURL) dataURL = d2.dataURL; }
+        } catch(e) {}
+        if (!dataURL) {
+          // Direct fetch as fallback
+          try { const ir = await fetch(data.url, {signal:AbortSignal.timeout(30000)}); if(ir.ok) dataURL = await blobToDataURL(await ir.blob()); } catch(e) {}
+        }
+        if (!dataURL) dataURL = data.url; // worst-case: raw URL
+      }
+    }
+  } catch(e) { console.warn('[generateImagePanel] proxy failed:', e.message); }
+  // Full fallback: direct Pollinations fetch
+  if (!dataURL) {
+    const directUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?seed=${seed}&width=${w}&height=${h}&nologo=true&enhance=true`;
+    try { const ir = await fetch(directUrl, {signal:AbortSignal.timeout(30000)}); if(ir.ok) dataURL = await blobToDataURL(await ir.blob()); } catch(e) {}
+    if (!dataURL) dataURL = directUrl;
+  }
+  lastGeneratedImgUrl = dataURL;
   const img = document.getElementById('imggen-output');
   img.onload = () => {
     document.getElementById('imggen-progress').style.display = 'none';
     document.getElementById('imggen-result').style.display = 'block';
-    document.getElementById('imggen-download').href = url;
+    document.getElementById('imggen-download').href = dataURL;
   };
   img.onerror = () => {
     document.getElementById('imggen-progress').style.display = 'none';
     showToast('Image generation failed — try a different prompt');
   };
-  img.src = url;
+  img.src = dataURL;
 }
 async function sendImageToChat() {
   if (!lastGeneratedImgUrl) return;
   const prompt = document.getElementById('imggen-prompt').value.trim();
-  // Convert external URL to dataURL so image persists in Supabase across sessions
-  let imgSrc = lastGeneratedImgUrl;
-  try { imgSrc = await urlToDataURL(lastGeneratedImgUrl); } catch(e) { console.warn('[sendImageToChat] dataURL conversion failed, using URL:', e.message); }
+  // lastGeneratedImgUrl is already a dataURL (set by generateImagePanel)
+  const imgSrc = lastGeneratedImgUrl;
   messages.push({ role:'assistant', content:`Here's your generated image:\n\n![Generated](${imgSrc})\n\n*Prompt: "${prompt}"*`, tag:'image', toolUsed:'image', toolInfo:`Generated: "${prompt.slice(0,50)}"` });
   showArtifact(`<img src="${imgSrc}" style="max-width:100%;border-radius:8px">`, 'html', '🖼️ Generated Image');
   renderMessages();
@@ -5999,7 +6028,6 @@ async function sendMessage() {
       } catch(e) {
         console.error('Imagine edit error:', e);
         let imgUrl = await generateImage(rawText || 'enhanced image');
-        try { imgUrl = await urlToDataURL(imgUrl); } catch(e) {}
         messages.push({role:'assistant', content:`Here's the result:\n\n![Result](${imgUrl})`, tag:'image', toolUsed:'image', toolInfo:`Imagine result`});
         renderMessages();
       }
@@ -6009,7 +6037,6 @@ async function sendMessage() {
     if (prompt) {
       setStatus('Generating image…', true);
       let imgUrl = await generateImage(prompt);
-      try { imgUrl = await urlToDataURL(imgUrl); } catch(e) {}
       messages.push({role:'assistant', content:`Here's your image:\n\n![Generated](${imgUrl})\n\n*Prompt: "${prompt}"*`, tag:'image', toolUsed:'image', toolInfo:`Generated: "${prompt.slice(0,40)}"`});
       showArtifact(`<img src="${imgUrl}" style="max-width:100%;border-radius:8px;display:block;margin:auto">`, 'html', '🖼️ Generated Image');
       renderMessages();
@@ -6513,7 +6540,7 @@ function extractImagePrompt(text) {
 }
 async function generateImage(prompt) {
   const seed = Math.floor(Math.random() * 999999);
-  // Proxy through /api/imagine to avoid CORS and keep future API keys server-side
+  // Step 1: Ask proxy for the Pollinations URL (server-side, avoids CORS)
   try {
     const r = await fetch('/api/imagine', {
       method: 'POST',
@@ -6522,11 +6549,41 @@ async function generateImage(prompt) {
     });
     if (r.ok) {
       const data = await r.json();
-      if (data.url) return data.url;
+      // Step 2: If proxy returned a dataURL already, use it directly
+      if (data.dataURL) return data.dataURL;
+      // Step 3: If proxy returned a URL, fetch the actual image through the proxy to get base64
+      // (direct fetch would fail due to Pollinations CORS policy)
+      if (data.url) {
+        try {
+          const r2 = await fetch('/api/imagine', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'fetch_as_base64', url: data.url }),
+          });
+          if (r2.ok) {
+            const d2 = await r2.json();
+            if (d2.dataURL) return d2.dataURL;
+          }
+        } catch(e2) { console.warn('[generateImage] base64 fetch failed:', e2.message); }
+        // Step 4: Proxy fetch failed — try fetching the image directly and converting
+        try {
+          const imgResp = await fetch(data.url, { signal: AbortSignal.timeout(30000) });
+          if (imgResp.ok) {
+            const blob = await imgResp.blob();
+            return await blobToDataURL(blob);
+          }
+        } catch(e3) { console.warn('[generateImage] direct image fetch failed:', e3.message); }
+        return data.url; // last resort: return the raw URL
+      }
     }
   } catch(e) { console.warn('[generateImage] proxy failed, using direct URL:', e.message); }
-  // Fallback: direct Pollinations URL (works in local dev without Vercel)
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?seed=${seed}&width=1024&height=768&nologo=true&enhance=true`;
+  // Fallback: direct Pollinations URL then try to convert it
+  const fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?seed=${seed}&width=1024&height=768&nologo=true&enhance=true`;
+  try {
+    const imgResp = await fetch(fallbackUrl, { signal: AbortSignal.timeout(30000) });
+    if (imgResp.ok) return await blobToDataURL(await imgResp.blob());
+  } catch(e) {}
+  return fallbackUrl;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -14551,7 +14608,6 @@ sendMessage = async function() {
     if (prompt) {
       setStatus('Generating image…', true);
       let imgUrl = await generateImage(prompt);
-      try { imgUrl = await urlToDataURL(imgUrl); } catch(e) {}
       messages.push({ role: 'assistant', content: `Here's your image:\n\n![Generated](${imgUrl})\n\n*Prompt: "${prompt}"*`, tag: 'image', toolUsed: 'image', toolInfo: `Generated: "${prompt.slice(0, 40)}"` });
       openArtifactPanel(`<img src="${imgUrl}" style="max-width:100%;border-radius:8px;display:block;margin:auto">`, 'html', '🖼️ Generated Image');
       renderMessages(); isStreaming = false; setStatus('', false); updateSendBtn(); saveConvo(); return;
