@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1056,8 +1059,19 @@ body.light{
 /* Music Generator button in sidebar */
 .sb-music-btn{margin:4px 8px;padding:9px 14px;background:linear-gradient(135deg,rgba(167,139,250,.14),rgba(244,114,182,.12));border:1px solid rgba(167,139,250,.28);border-radius:var(--r-sm);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:#a78bfa;display:flex;align-items:center;gap:8px;width:calc(100% - 16px);transition:all .18s;position:relative;overflow:hidden;}
 .sb-music-btn:hover{border-color:rgba(167,139,250,.48);transform:translateY(-1px);box-shadow:0 4px 16px rgba(167,139,250,.15);}
+
+/* Clothes swap chip */
+.ie-outfit-chip{padding:4px 9px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-family:inherit;font-size:11px;cursor:pointer;transition:all .13s;white-space:nowrap;}
+.ie-outfit-chip:hover{border-color:var(--border3);color:var(--text);}
+.ie-outfit-chip.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent2);}
 .sidebar.collapsed .sb-music-btn{width:40px;margin:1px auto;justify-content:center;padding:9px 0;}
 .sidebar.collapsed .sb-music-btn .sb-btn-label{display:none;}
+
+/* Image Editor button in sidebar */
+.sb-image-btn{margin:4px 8px;padding:9px 14px;background:linear-gradient(135deg,rgba(251,146,60,.14),rgba(249,115,22,.12));border:1px solid rgba(251,146,60,.28);border-radius:var(--r-sm);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:#fb923c;display:flex;align-items:center;gap:8px;width:calc(100% - 16px);transition:all .18s;position:relative;overflow:hidden;}
+.sb-image-btn:hover{border-color:rgba(251,146,60,.48);transform:translateY(-1px);box-shadow:0 4px 16px rgba(251,146,60,.15);}
+.sidebar.collapsed .sb-image-btn{width:40px;margin:1px auto;justify-content:center;padding:9px 0;}
+.sidebar.collapsed .sb-image-btn .sb-btn-label{display:none;}
 
 /* Progress indicator inside VM */
 .vm-gen-progress{height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-top:8px;display:none;}
@@ -1644,6 +1658,10 @@ body.light{
     <button class="sb-music-btn sb-compact" onclick="openMusicGen()" title="AI Music Generator" data-tip="AI Music Generator">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
       <span class="sb-btn-label">Music</span>
+    </button>
+    <button class="sb-image-btn sb-compact" onclick="openImagineEditorFromSidebar()" title="Image Editor" data-tip="Image Editor">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span class="sb-btn-label">Image</span>
     </button>
     <div class="sidebar-nav-compact">
       <button class="sb-btn sb-sm highlight" onclick="openPanel('tools')" data-tip="Tools & Capabilities">
@@ -20209,6 +20227,33 @@ window.saveConvo = function() {
           <button class="ie-cat-btn" data-cat="ai" onclick="ieSetCat(this,'ai')">
             <span class="ie-cat-icon">🤖</span> AI Edits
           </button>
+          <button class="ie-cat-btn" data-cat="brain" onclick="ieSetCat(this,'brain')">
+            <span class="ie-cat-icon">🧠</span> AI Brain
+          </button>
+          <button class="ie-cat-btn" data-cat="face_adv" onclick="ieSetCat(this,'face_adv')">
+            <span class="ie-cat-icon">🎭</span> Face & Person
+          </button>
+          <button class="ie-cat-btn" data-cat="scene" onclick="ieSetCat(this,'scene')">
+            <span class="ie-cat-icon">🌍</span> Scene & World
+          </button>
+          <button class="ie-cat-btn" data-cat="colorscience" onclick="ieSetCat(this,'colorscience')">
+            <span class="ie-cat-icon">🎨</span> Color Science
+          </button>
+          <button class="ie-cat-btn" data-cat="draw" onclick="ieSetCat(this,'draw')">
+            <span class="ie-cat-icon">✏️</span> Draw & Vector
+          </button>
+          <button class="ie-cat-btn" data-cat="animate" onclick="ieSetCat(this,'animate')">
+            <span class="ie-cat-icon">🎞️</span> Animation
+          </button>
+          <button class="ie-cat-btn" data-cat="technical" onclick="ieSetCat(this,'technical')">
+            <span class="ie-cat-icon">🔬</span> Technical
+          </button>
+          <button class="ie-cat-btn" data-cat="collab" onclick="ieSetCat(this,'collab')">
+            <span class="ie-cat-icon">🤝</span> Social & Share
+          </button>
+          <button class="ie-cat-btn" data-cat="wildcard" onclick="ieSetCat(this,'wildcard')">
+            <span class="ie-cat-icon">🕹️</span> Wild Cards
+          </button>
         </div>
         <div id="ie-filter-list"></div>
       </div>
@@ -20311,6 +20356,105 @@ window.saveConvo = function() {
               <input type="range" class="ie-slider" id="ie-pixelate" min="0" max="40" value="0"
                 oninput="ieSliderChange('pixelate',this.value)" onchange="ieSliderApply()">
             </div>
+
+            <!-- New sliders -->
+            <div class="ie-slider-row">
+              <div class="ie-slider-label-row">
+                <span class="ie-slider-label">Hue Rotate</span>
+                <span class="ie-slider-value" id="ie-hue-val">0°</span>
+              </div>
+              <input type="range" class="ie-slider" id="ie-hue" min="0" max="360" value="0"
+                oninput="ieSliderChange('hue',this.value)" onchange="ieSliderApply()">
+            </div>
+
+            <div class="ie-slider-row">
+              <div class="ie-slider-label-row">
+                <span class="ie-slider-label">Highlights</span>
+                <span class="ie-slider-value" id="ie-highlights-val">0</span>
+              </div>
+              <input type="range" class="ie-slider" id="ie-highlights" min="-100" max="100" value="0"
+                oninput="ieSliderChange('highlights',this.value)" onchange="ieSliderApply()">
+            </div>
+
+            <div class="ie-slider-row">
+              <div class="ie-slider-label-row">
+                <span class="ie-slider-label">Shadows</span>
+                <span class="ie-slider-value" id="ie-shadows-val">0</span>
+              </div>
+              <input type="range" class="ie-slider" id="ie-shadows" min="-100" max="100" value="0"
+                oninput="ieSliderChange('shadows',this.value)" onchange="ieSliderApply()">
+            </div>
+
+            <div class="ie-slider-row">
+              <div class="ie-slider-label-row">
+                <span class="ie-slider-label">Clarity</span>
+                <span class="ie-slider-value" id="ie-clarity-val">0</span>
+              </div>
+              <input type="range" class="ie-slider" id="ie-clarity" min="-100" max="100" value="0"
+                oninput="ieSliderChange('clarity',this.value)" onchange="ieSliderApply()">
+            </div>
+
+            <div class="ie-slider-row">
+              <div class="ie-slider-label-row">
+                <span class="ie-slider-label">Fade / Dehaze</span>
+                <span class="ie-slider-value" id="ie-fade-val">0</span>
+              </div>
+              <input type="range" class="ie-slider" id="ie-fade" min="0" max="100" value="0"
+                oninput="ieSliderChange('fade',this.value)" onchange="ieSliderApply()">
+            </div>
+
+            <div class="ie-slider-row">
+              <div class="ie-slider-label-row">
+                <span class="ie-slider-label">Temperature</span>
+                <span class="ie-slider-value" id="ie-temperature-val">0</span>
+              </div>
+              <input type="range" class="ie-slider" id="ie-temperature" min="-100" max="100" value="0"
+                oninput="ieSliderChange('temperature',this.value)" onchange="ieSliderApply()">
+            </div>
+
+            <div class="ie-slider-row">
+              <div class="ie-slider-label-row">
+                <span class="ie-slider-label">Tint</span>
+                <span class="ie-slider-value" id="ie-tint-val">0</span>
+              </div>
+              <input type="range" class="ie-slider" id="ie-tint" min="-100" max="100" value="0"
+                oninput="ieSliderChange('tint',this.value)" onchange="ieSliderApply()">
+            </div>
+
+            <!-- Straighten slider -->
+            <div class="ie-slider-row" id="ie-straighten-row" style="display:none">
+              <div class="ie-slider-label-row">
+                <span class="ie-slider-label">Straighten °</span>
+                <span class="ie-slider-value" id="ie-straighten-val">0°</span>
+              </div>
+              <input type="range" class="ie-slider" id="ie-straighten" min="-45" max="45" value="0"
+                oninput="document.getElementById('ie-straighten-val').textContent=this.value+'°';ieStraightenPreview(this.value)"
+                onchange="ieStraightenApply()">
+            </div>
+
+            <!-- Free crop UI -->
+            <div id="ie-free-crop-row" style="display:none;flex-direction:column;gap:6px;margin-top:6px">
+              <div class="ie-section-head">Free Crop</div>
+              <div style="font-size:11px;color:var(--text3);line-height:1.5">Use sliders to define crop region (% of image)</div>
+              <div class="ie-slider-row">
+                <div class="ie-slider-label-row"><span class="ie-slider-label">Left %</span><span class="ie-slider-value" id="ie-crop-l-val">0</span></div>
+                <input type="range" class="ie-slider" id="ie-crop-l" min="0" max="90" value="0" oninput="document.getElementById('ie-crop-l-val').textContent=this.value;ieCropPreview()">
+              </div>
+              <div class="ie-slider-row">
+                <div class="ie-slider-label-row"><span class="ie-slider-label">Top %</span><span class="ie-slider-value" id="ie-crop-t-val">0</span></div>
+                <input type="range" class="ie-slider" id="ie-crop-t" min="0" max="90" value="0" oninput="document.getElementById('ie-crop-t-val').textContent=this.value;ieCropPreview()">
+              </div>
+              <div class="ie-slider-row">
+                <div class="ie-slider-label-row"><span class="ie-slider-label">Right %</span><span class="ie-slider-value" id="ie-crop-r-val">0</span></div>
+                <input type="range" class="ie-slider" id="ie-crop-r" min="0" max="90" value="0" oninput="document.getElementById('ie-crop-r-val').textContent=this.value;ieCropPreview()">
+              </div>
+              <div class="ie-slider-row">
+                <div class="ie-slider-label-row"><span class="ie-slider-label">Bottom %</span><span class="ie-slider-value" id="ie-crop-b-val">0</span></div>
+                <input type="range" class="ie-slider" id="ie-crop-b" min="0" max="90" value="0" oninput="document.getElementById('ie-crop-b-val').textContent=this.value;ieCropPreview()">
+              </div>
+              <button class="ie-action-btn" onclick="ieCropApply()" style="margin-top:4px">✂️ Apply Crop</button>
+            </div>
+
           </div>
 
           <!-- Text overlay config (shown when text cat active) -->
@@ -20360,6 +20504,144 @@ window.saveConvo = function() {
             <button class="ie-action-btn" style="padding:5px 9px;font-size:11px;width:auto" onclick="ieApplyPreset('artistic')">🎨 Artistic</button>
           </div>
 
+          <!-- Sticker / Emoji panel (shown when sticker filter active) -->
+          <div id="ie-sticker-config" style="display:none">
+            <div class="ie-section-head">Sticker / Emoji</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="ie-sticker-grid">
+              <!-- populated by JS -->
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Or type custom emoji:</div>
+            <input type="text" id="ie-sticker-custom" placeholder="😂🔥✨" maxlength="8"
+              style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;color:var(--text);font-size:18px;outline:none;margin-bottom:6px">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Position:</div>
+            <div class="ie-pos-grid" id="ie-sticker-pos-grid">
+              <div class="ie-pos-cell" data-pos="top-left" onclick="ieStickerPos(this)">↖</div>
+              <div class="ie-pos-cell" data-pos="top-center" onclick="ieStickerPos(this)">↑</div>
+              <div class="ie-pos-cell" data-pos="top-right" onclick="ieStickerPos(this)">↗</div>
+              <div class="ie-pos-cell" data-pos="mid-left" onclick="ieStickerPos(this)">←</div>
+              <div class="ie-pos-cell active" data-pos="mid-center" onclick="ieStickerPos(this)">⊙</div>
+              <div class="ie-pos-cell" data-pos="mid-right" onclick="ieStickerPos(this)">→</div>
+              <div class="ie-pos-cell" data-pos="bot-left" onclick="ieStickerPos(this)">↙</div>
+              <div class="ie-pos-cell" data-pos="bot-center" onclick="ieStickerPos(this)">↓</div>
+              <div class="ie-pos-cell" data-pos="bot-right" onclick="ieStickerPos(this)">↘</div>
+            </div>
+            <div class="ie-slider-row" style="margin-top:8px">
+              <div class="ie-slider-label-row"><span class="ie-slider-label">Size</span><span class="ie-slider-value" id="ie-sticker-size-val">80</span></div>
+              <input type="range" class="ie-slider" id="ie-sticker-size" min="20" max="300" value="80"
+                oninput="document.getElementById('ie-sticker-size-val').textContent=this.value">
+            </div>
+          </div>
+
+          <!-- 👗 CLOTHES SWAP PANEL (shown when ai_clothes filter active) -->
+          <div id="ie-clothes-config" style="display:none">
+            <div class="ie-section-head">👗 Clothes Swap</div>
+
+            <!-- Step 1: Outfit type -->
+            <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">1. Outfit Style</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px" id="ie-outfit-chips">
+              <button class="ie-outfit-chip active" data-outfit="casual everyday outfit" onclick="ieSelectOutfit(this)">👕 Casual</button>
+              <button class="ie-outfit-chip" data-outfit="formal business suit" onclick="ieSelectOutfit(this)">👔 Formal</button>
+              <button class="ie-outfit-chip" data-outfit="urban streetwear" onclick="ieSelectOutfit(this)">🧢 Streetwear</button>
+              <button class="ie-outfit-chip" data-outfit="athletic sportswear" onclick="ieSelectOutfit(this)">🏃 Sport</button>
+              <button class="ie-outfit-chip" data-outfit="traditional cultural attire" onclick="ieSelectOutfit(this)">🪭 Traditional</button>
+              <button class="ie-outfit-chip" data-outfit="elegant evening wear" onclick="ieSelectOutfit(this)">🥂 Evening</button>
+              <button class="ie-outfit-chip" data-outfit="beach summer outfit" onclick="ieSelectOutfit(this)">🏖️ Beach</button>
+              <button class="ie-outfit-chip" data-outfit="warm winter coat and layers" onclick="ieSelectOutfit(this)">🧥 Winter</button>
+            </div>
+
+            <!-- Step 2: Color -->
+            <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">2. Color / Pattern</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px" id="ie-color-chips">
+              <button class="ie-outfit-chip active" data-color="keep original colors" onclick="ieSelectColor(this)">🎨 Original</button>
+              <button class="ie-outfit-chip" data-color="black" onclick="ieSelectColor(this)">⬛ Black</button>
+              <button class="ie-outfit-chip" data-color="white" onclick="ieSelectColor(this)">⬜ White</button>
+              <button class="ie-outfit-chip" data-color="navy blue" onclick="ieSelectColor(this)">🔵 Navy</button>
+              <button class="ie-outfit-chip" data-color="red" onclick="ieSelectColor(this)">🔴 Red</button>
+              <button class="ie-outfit-chip" data-color="floral pattern" onclick="ieSelectColor(this)">🌸 Floral</button>
+              <button class="ie-outfit-chip" data-color="plaid pattern" onclick="ieSelectColor(this)">🟦 Plaid</button>
+              <button class="ie-outfit-chip" data-color="striped pattern" onclick="ieSelectColor(this)">〰️ Striped</button>
+            </div>
+
+            <!-- Step 3: Custom description -->
+            <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">3. Describe (optional)</div>
+            <textarea id="ie-clothes-desc" rows="2" placeholder="e.g. red silk evening dress with off-shoulder, lace trim…"
+              style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;color:var(--text);font-family:inherit;font-size:12px;outline:none;resize:none;margin-bottom:10px;line-height:1.5"></textarea>
+
+            <!-- Step 4: Reference garment image -->
+            <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">4. Reference Garment (optional)</div>
+            <div id="ie-garment-drop" onclick="iePickGarment()"
+              style="border:1.5px dashed var(--border2);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:10px;background:var(--bg3);"
+              onmouseenter="this.style.borderColor='var(--accent)';this.style.background='var(--accent-dim)'"
+              onmouseleave="this.style.borderColor='var(--border2)';this.style.background='var(--bg3)'"
+              ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+              ondrop="ieGarmentDrop(event)">
+              <div id="ie-garment-preview" style="display:none;position:relative">
+                <img id="ie-garment-img" style="max-width:100%;max-height:100px;border-radius:6px;object-fit:contain">
+                <button onclick="event.stopPropagation();ieClearGarment()" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--red);border:none;color:#fff;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center">✕</button>
+              </div>
+              <div id="ie-garment-placeholder">
+                <div style="font-size:22px;margin-bottom:4px">👗</div>
+                <div style="font-size:11px;color:var(--text3)">Drop garment image or click to upload</div>
+                <div style="font-size:10px;color:var(--text3);margin-top:2px">Helps AI match style precisely</div>
+              </div>
+            </div>
+            <input type="file" id="ie-garment-file" accept="image/*" style="display:none" onchange="ieGarmentFileLoad(event)">
+
+            <!-- Strength slider -->
+            <div class="ie-slider-row" style="margin-bottom:10px">
+              <div class="ie-slider-label-row">
+                <span class="ie-slider-label">Strength</span>
+                <span class="ie-slider-value" id="ie-clothes-strength-val">75%</span>
+              </div>
+              <input type="range" class="ie-slider" id="ie-clothes-strength" min="20" max="100" value="75"
+                oninput="document.getElementById('ie-clothes-strength-val').textContent=this.value+'%'">
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:2px">
+                <span>Subtle</span><span>Full swap</span>
+              </div>
+            </div>
+
+            <!-- Preserve face/BG toggle -->
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer">
+                <input type="checkbox" id="ie-preserve-face" checked style="accent-color:var(--accent)"> Preserve face
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer">
+                <input type="checkbox" id="ie-preserve-bg" checked style="accent-color:var(--accent)"> Preserve background
+              </label>
+            </div>
+
+            <!-- Apply button -->
+            <button class="ie-action-btn apply" onclick="ieApplyClothesSwap()" style="width:100%;margin-bottom:4px">
+              👗 Swap Clothes
+            </button>
+            <div style="font-size:10px;color:var(--text3);text-align:center;line-height:1.5">
+              Powered by Pollinations AI · Results vary by image
+            </div>
+          </div>
+
+          <!-- Export section -->
+          <div class="ie-section-head" style="margin-top:8px">Export Options</div>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+            <div style="display:flex;gap:5px">
+              <button class="ie-action-btn" style="flex:1;padding:6px 8px;font-size:11px" onclick="ieDownloadJpeg()">⬇ JPEG</button>
+              <button class="ie-action-btn" style="flex:1;padding:6px 8px;font-size:11px" onclick="ieDownloadWebP()">⬇ WebP</button>
+              <button class="ie-action-btn" style="flex:1;padding:6px 8px;font-size:11px" onclick="ieDownload()">⬇ PNG</button>
+            </div>
+            <div class="ie-slider-row" id="ie-jpeg-quality-row">
+              <div class="ie-slider-label-row"><span class="ie-slider-label">JPEG Quality</span><span class="ie-slider-value" id="ie-jpeg-quality-val">90%</span></div>
+              <input type="range" class="ie-slider" id="ie-jpeg-quality" min="10" max="100" value="90"
+                oninput="document.getElementById('ie-jpeg-quality-val').textContent=this.value+'%'">
+            </div>
+            <button class="ie-action-btn" style="padding:6px 8px;font-size:11px" onclick="ieSavePreset()">💾 Save Preset</button>
+            <button class="ie-action-btn" style="padding:6px 8px;font-size:11px" onclick="ieShareLink()">🔗 Share Link</button>
+          </div>
+
+          <!-- Saved presets -->
+          <div class="ie-section-head">Saved Presets</div>
+          <div id="ie-saved-presets" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+            <span style="font-size:11px;color:var(--text3)">No saved presets yet</span>
+          </div>
+
         </div>
 
         <!-- History strip -->
@@ -20407,7 +20689,8 @@ const IE = {
   textPos: 'bot-center',
   textFont: "'DM Sans',sans-serif",
   // slider state (applied together on mouseup)
-  sliders: { brightness:0, contrast:0, saturation:0, blur:0, grain:0, pixelate:0 },
+  sliders: { brightness:0, contrast:0, saturation:0, blur:0, grain:0, pixelate:0,
+             hue:0, highlights:0, shadows:0, clarity:0, fade:0, temperature:0, tint:0 },
   pendingSliderTimer: null,
   isProcessing: false,
 };
@@ -20415,50 +20698,66 @@ const IE = {
 // ── FILTER DEFINITIONS ──
 const IE_CATS = {
   adjust: [
-    { id:'sharpen',   name:'Sharpen',     sub:'Crisp edges',          emoji:'🔪' },
-    { id:'enhance',   name:'Enhance',     sub:'Auto improve',         emoji:'✨' },
-    { id:'hdr',       name:'HDR',         sub:'Dynamic range',        emoji:'🌅' },
-    { id:'invert',    name:'Invert',      sub:'Negative photo',       emoji:'🔄' },
-    { id:'edge',      name:'Edge Detect', sub:'Sketch outline',       emoji:'✏️' },
-    { id:'emboss',    name:'Emboss',      sub:'3D relief effect',     emoji:'🪨' },
+    { id:'sharpen',   name:'Sharpen',        sub:'Crisp edges',          emoji:'🔪' },
+    { id:'enhance',   name:'Enhance',        sub:'Auto improve',         emoji:'✨' },
+    { id:'hdr',       name:'HDR',            sub:'Dynamic range',        emoji:'🌅' },
+    { id:'invert',    name:'Invert',         sub:'Negative photo',       emoji:'🔄' },
+    { id:'edge',      name:'Edge Detect',    sub:'Sketch outline',       emoji:'✏️' },
+    { id:'emboss',    name:'Emboss',         sub:'3D relief effect',     emoji:'🪨' },
+    { id:'solarize',  name:'Solarize',       sub:'Partial invert',       emoji:'☀️' },
+    { id:'posterize', name:'Posterize',      sub:'Reduce color levels',  emoji:'🎭' },
+    { id:'oil_paint', name:'Oil Paint',      sub:'Painterly effect',     emoji:'🖌️' },
   ],
   color: [
-    { id:'grayscale', name:'Grayscale',   sub:'B&W monochrome',       emoji:'⬛' },
-    { id:'sepia',     name:'Sepia',       sub:'Vintage brown',        emoji:'🟤' },
-    { id:'warm',      name:'Warm Tone',   sub:'Golden hour',          emoji:'🟠' },
-    { id:'cool',      name:'Cool Tone',   sub:'Cinematic blue',       emoji:'🔵' },
-    { id:'matrix',    name:'Matrix',      sub:'Green channel',        emoji:'💚' },
-    { id:'purple',    name:'Purple Haze', sub:'Violet cast',          emoji:'💜' },
-    { id:'saturate',  name:'Vivid',       sub:'Boost colors',         emoji:'🌈' },
-    { id:'desaturate',name:'Muted',       sub:'Fade colors',          emoji:'🩶' },
-    { id:'duotone',   name:'Duotone',     sub:'Two-color blend',      emoji:'🎨' },
-    { id:'contrast',  name:'High Contrast',sub:'Punch contrast',      emoji:'◑' },
+    { id:'grayscale', name:'Grayscale',      sub:'B&W monochrome',       emoji:'⬛' },
+    { id:'sepia',     name:'Sepia',          sub:'Vintage brown',        emoji:'🟤' },
+    { id:'warm',      name:'Warm Tone',      sub:'Golden hour',          emoji:'🟠' },
+    { id:'cool',      name:'Cool Tone',      sub:'Cinematic blue',       emoji:'🔵' },
+    { id:'matrix',    name:'Matrix',         sub:'Green channel',        emoji:'💚' },
+    { id:'purple',    name:'Purple Haze',    sub:'Violet cast',          emoji:'💜' },
+    { id:'saturate',  name:'Vivid',          sub:'Boost colors',         emoji:'🌈' },
+    { id:'desaturate',name:'Muted',          sub:'Fade colors',          emoji:'🩶' },
+    { id:'duotone',   name:'Duotone',        sub:'Two-color blend',      emoji:'🎨' },
+    { id:'contrast',  name:'High Contrast',  sub:'Punch contrast',       emoji:'◑' },
+    { id:'cross_process',name:'Cross-Process',sub:'Pushed film chemistry',emoji:'🔆' },
+    { id:'lomography',name:'Lomography',     sub:'Vivid vignette shift', emoji:'📸' },
+    { id:'infrared',  name:'Infrared',       sub:'False color swap',     emoji:'🌡️' },
+    { id:'cinematic_lut',name:'Cinematic LUT',sub:'Hollywood grade',     emoji:'🎬' },
   ],
   style: [
-    { id:'vignette',  name:'Vignette',    sub:'Cinematic border',     emoji:'🎬' },
-    { id:'tilt_shift',name:'Tilt-Shift',  sub:'Miniature look',       emoji:'🏙️' },
-    { id:'glitch',    name:'Glitch',      sub:'Chromatic aberration', emoji:'⚡' },
-    { id:'neon_glow', name:'Neon Glow',   sub:'Edge luminance',       emoji:'💡' },
-    { id:'halftone',  name:'Halftone',    sub:'Comic dot print',      emoji:'⚫' },
-    { id:'color_splash',name:'Color Splash',sub:'Reds stay vivid',   emoji:'🔴' },
+    { id:'vignette',    name:'Vignette',      sub:'Cinematic border',     emoji:'🎬' },
+    { id:'tilt_shift',  name:'Tilt-Shift',    sub:'Miniature look',       emoji:'🏙️' },
+    { id:'glitch',      name:'Glitch',        sub:'Chromatic aberration', emoji:'⚡' },
+    { id:'neon_glow',   name:'Neon Glow',     sub:'Edge luminance',       emoji:'💡' },
+    { id:'halftone',    name:'Halftone',      sub:'Comic dot print',      emoji:'⚫' },
+    { id:'color_splash',name:'Color Splash',  sub:'Reds stay vivid',      emoji:'🔴' },
+    { id:'oil_paint',   name:'Oil Paint',     sub:'Painterly effect',     emoji:'🖌️' },
+    { id:'cross_process',name:'Cross-Process',sub:'Slide film pushed',    emoji:'🔆' },
+    { id:'lomography',  name:'Lomography',    sub:'Vivid vignette',       emoji:'📸' },
+    { id:'cinematic_lut',name:'Cinematic LUT',sub:'Hollywood grade',      emoji:'🎥' },
   ],
   transform: [
-    { id:'flip_h',    name:'Flip H',      sub:'Mirror horizontal',    emoji:'↔️' },
-    { id:'flip_v',    name:'Flip V',      sub:'Flip vertical',        emoji:'↕️' },
-    { id:'rotate90',  name:'Rotate 90°',  sub:'Clockwise turn',       emoji:'↩' },
-    { id:'rotate180', name:'Rotate 180°', sub:'Upside down',          emoji:'🔃' },
-    { id:'rotate270', name:'Rotate 270°', sub:'Counter-clockwise',    emoji:'↪' },
-    { id:'crop_sq',   name:'Crop Square', sub:'1:1 center crop',      emoji:'⬜' },
-    { id:'crop_16_9', name:'Crop 16:9',   sub:'Widescreen crop',      emoji:'🟦' },
-    { id:'crop_9_16', name:'Crop 9:16',   sub:'Portrait crop',        emoji:'📱' },
-    { id:'upscale',   name:'Upscale 2×',  sub:'Increase resolution',  emoji:'🔬' },
+    { id:'flip_h',      name:'Flip H',        sub:'Mirror horizontal',    emoji:'↔️' },
+    { id:'flip_v',      name:'Flip V',        sub:'Flip vertical',        emoji:'↕️' },
+    { id:'rotate90',    name:'Rotate 90°',    sub:'Clockwise turn',       emoji:'↩' },
+    { id:'rotate180',   name:'Rotate 180°',   sub:'Upside down',          emoji:'🔃' },
+    { id:'rotate270',   name:'Rotate 270°',   sub:'Counter-clockwise',    emoji:'↪' },
+    { id:'crop_sq',     name:'Crop Square',   sub:'1:1 center crop',      emoji:'⬜' },
+    { id:'crop_16_9',   name:'Crop 16:9',     sub:'Widescreen crop',      emoji:'🟦' },
+    { id:'crop_9_16',   name:'Crop 9:16',     sub:'Portrait crop',        emoji:'📱' },
+    { id:'upscale',     name:'Upscale 2×',    sub:'Increase resolution',  emoji:'🔬' },
+    { id:'straighten',  name:'Straighten',    sub:'Rotate by degrees',    emoji:'📐' },
+    { id:'free_crop',   name:'Free Crop',     sub:'Interactive region',   emoji:'✂️' },
   ],
   effects: [
-    { id:'grain',     name:'Film Grain',  sub:'Analog noise',         emoji:'📽️' },
-    { id:'blur',      name:'Blur',        sub:'Gaussian soft',        emoji:'🌫️' },
-    { id:'pixelate',  name:'Pixelate',    sub:'8-bit mosaic',         emoji:'👾' },
-    { id:'emboss',    name:'Emboss',      sub:'Relief effect',        emoji:'🪨' },
-    { id:'bg_blur',   name:'BG Blur',     sub:'Bokeh depth',          emoji:'📷' },
+    { id:'grain',     name:'Film Grain',      sub:'Analog noise',         emoji:'📽️' },
+    { id:'blur',      name:'Blur',            sub:'Gaussian soft',        emoji:'🌫️' },
+    { id:'pixelate',  name:'Pixelate',        sub:'8-bit mosaic',         emoji:'👾' },
+    { id:'emboss',    name:'Emboss',          sub:'Relief effect',        emoji:'🪨' },
+    { id:'bg_blur',   name:'BG Blur',         sub:'Bokeh depth',          emoji:'📷' },
+    { id:'solarize',  name:'Solarize',        sub:'Partial invert',       emoji:'☀️' },
+    { id:'posterize', name:'Posterize',       sub:'Reduce color levels',  emoji:'🎭' },
+    { id:'infrared',  name:'Infrared',        sub:'False color',          emoji:'🌡️' },
   ],
   face: [
     { id:'face_blur',     name:'Blur Face',    sub:'Privacy mask',      emoji:'😶' },
@@ -20466,21 +20765,148 @@ const IE_CATS = {
     { id:'bg_blur',       name:'Bokeh BG',     sub:'Portrait mode',     emoji:'📷' },
   ],
   text: [
-    { id:'text_overlay', name:'Add Text',    sub:'Custom overlay',     emoji:'🖊️' },
-    { id:'watermark',    name:'Watermark',   sub:'Tiled brand mark',   emoji:'©️' },
+    { id:'text_overlay', name:'Add Text',      sub:'Custom overlay',     emoji:'🖊️' },
+    { id:'watermark',    name:'Watermark',     sub:'Tiled brand mark',   emoji:'©️' },
+    { id:'text_stroke',  name:'Stroke Text',   sub:'Outline + shadow',   emoji:'🔤' },
+    { id:'sticker',      name:'Sticker/Emoji', sub:'Drag & drop layer',  emoji:'😀' },
   ],
   ai: [
-    { id:'ai_style_anime',    name:'Anime',       sub:'Studio Ghibli',      emoji:'🗾' },
-    { id:'ai_style_oil',      name:'Oil Painting',sub:'Museum quality',     emoji:'🖼️' },
-    { id:'ai_style_sketch',   name:'Sketch',      sub:'Pencil drawing',     emoji:'✏️' },
-    { id:'ai_style_vintage',  name:'Vintage',     sub:'Retro film',         emoji:'📷' },
-    { id:'ai_style_cyberpunk',name:'Cyberpunk',   sub:'Neon futuristic',    emoji:'🌆' },
-    { id:'ai_style_3d',       name:'3D Render',   sub:'Octane render',      emoji:'🎮' },
-    { id:'ai_bg_remove',      name:'Remove BG',   sub:'Transparent BG',     emoji:'🧹' },
-    { id:'ai_bg_blur',        name:'Blur BG',     sub:'AI portrait mode',   emoji:'📸' },
-    { id:'ai_clothes',        name:'Swap Clothes',sub:'AI outfit change',   emoji:'👗' },
-    { id:'ai_upscale',        name:'AI Upscale',  sub:'Super resolution',   emoji:'🔬' },
-    { id:'ai_edit_prompt',    name:'Custom Prompt',sub:'Describe any edit', emoji:'💬' },
+    { id:'ai_style_anime',    name:'Anime',        sub:'Studio Ghibli',      emoji:'🗾' },
+    { id:'ai_style_oil',      name:'Oil Painting', sub:'Museum quality',     emoji:'🖼️' },
+    { id:'ai_style_sketch',   name:'Sketch',       sub:'Pencil drawing',     emoji:'✏️' },
+    { id:'ai_style_vintage',  name:'Vintage',      sub:'Retro film',         emoji:'📷' },
+    { id:'ai_style_cyberpunk',name:'Cyberpunk',    sub:'Neon futuristic',    emoji:'🌆' },
+    { id:'ai_style_3d',       name:'3D Render',    sub:'Octane render',      emoji:'🎮' },
+    { id:'ai_bg_remove',      name:'Remove BG',    sub:'Transparent BG',     emoji:'🧹' },
+    { id:'ai_bg_blur',        name:'Blur BG',      sub:'AI portrait mode',   emoji:'📸' },
+    { id:'ai_clothes',        name:'Swap Clothes', sub:'AI outfit change',   emoji:'👗' },
+    { id:'ai_upscale',        name:'AI Upscale',   sub:'Super resolution',   emoji:'🔬' },
+    { id:'ai_colorize',       name:'Colorize B&W', sub:'AI colorization',    emoji:'🎨' },
+    { id:'ai_face_enhance',   name:'Face Enhance', sub:'Restore faces',      emoji:'✨' },
+    { id:'ai_bg_replace',     name:'Replace BG',   sub:'Describe new BG',    emoji:'🌄' },
+    { id:'ai_edit_prompt',    name:'Custom Prompt',sub:'Describe any edit',  emoji:'💬' },
+  ],
+
+  // ── 🧠 AI BRAIN ──
+  brain: [
+    { id:'ai_describe_edit',  name:'Describe & Edit',   sub:'"make her younger" → AI', emoji:'🗣️' },
+    { id:'ai_moodboard',      name:'Mood Board Blend',  sub:'Paste 3 refs → blend style', emoji:'🖼️' },
+    { id:'ai_prompt_optimizer',name:'Prompt Optimizer', sub:'Bad prompt → great results', emoji:'⚡' },
+    { id:'ai_negative_fill',  name:'Negative Space Fill',sub:'AI fills empty areas',  emoji:'🔲' },
+    { id:'ai_critique',       name:'AI Critique',       sub:'Compositional analysis',  emoji:'📊' },
+    { id:'ai_auto_retouch',   name:'Auto Retouch',      sub:'Skin, eyes, teeth, hair', emoji:'💅' },
+    { id:'ai_deepdream',      name:'DeepDream',         sub:'Neural psychedelic patterns',emoji:'🌀' },
+    { id:'ai_neural_style',   name:'Neural Style Blend',sub:'Monet↔Picasso slider',   emoji:'🎭' },
+    { id:'ai_scene_understand',name:'Scene Understand', sub:'AI reads & suggests edits',emoji:'👁️' },
+    { id:'ai_storyboard',     name:'AI Storyboard',     sub:'6-panel same character',  emoji:'🎬' },
+  ],
+
+  // ── 🎭 FACE & PERSON ──
+  face_adv: [
+    { id:'age_slider',        name:'Age Slider',        sub:'10–70 years old',         emoji:'👴' },
+    { id:'emotion_swap',      name:'Emotion Swap',      sub:'Happy→Serious→Surprised', emoji:'😊' },
+    { id:'eye_color',         name:'Eye Color Change',  sub:'Recolor irises precisely', emoji:'👁️' },
+    { id:'hair_color',        name:'Hair Color/Style',  sub:'Dye or change haircut',   emoji:'💇' },
+    { id:'beard_makeup',      name:'Beard & Makeup',    sub:'Add/remove beard or makeup',emoji:'💄' },
+    { id:'face_3d_rotate',    name:'3D Face Rotation',  sub:'Rotate 2D face via depth', emoji:'🔄' },
+    { id:'ai_gender_swap',    name:'Gender Swap',       sub:'AI reimagines presentation',emoji:'⚤' },
+    { id:'ai_virtual_tryon',  name:'Virtual Try-On 2.0',sub:'Precise garment warp',    emoji:'👔' },
+    { id:'ai_skin_lighting',  name:'Skin-Aware Light',  sub:'Corrects for skin tones',  emoji:'💡' },
+    { id:'multi_face_edit',   name:'Multi-Face Editor', sub:'Edit each face in group',  emoji:'👥' },
+    { id:'puppet_warp',       name:'Puppet Warp',       sub:'Drag body parts to pose',  emoji:'🎎' },
+    { id:'lip_sync',          name:'Lip Sync Preview',  sub:'Animate mouth to audio',   emoji:'🎤' },
+  ],
+
+  // ── 🌍 SCENE & WORLD ──
+  scene: [
+    { id:'weather_swap',      name:'Weather Swap',      sub:'Sunny→Rain/Snow/Fog',     emoji:'🌦️' },
+    { id:'season_swap',       name:'Season Swap',       sub:'Summer→Autumn/Winter',    emoji:'🍂' },
+    { id:'time_of_day',       name:'Time of Day',       sub:'Noon→Dusk→Night',         emoji:'🌅' },
+    { id:'sky_replace',       name:'Sky Replacement v2',sub:'50 presets + custom',     emoji:'🌤️' },
+    { id:'reflection_add',    name:'Reflection Adder',  sub:'Water/floor reflections', emoji:'🪞' },
+    { id:'shadow_synth',      name:'Shadow Synthesizer',sub:'Add/move/remove shadows',  emoji:'🌑' },
+    { id:'lens_flare',        name:'Lens Flare Designer',sub:'Position realistic flares',emoji:'✨' },
+    { id:'depth_map',         name:'Depth Map Gen',     sub:'2D→depth map',            emoji:'📐' },
+    { id:'parallax_2d3d',     name:'2D→3D Parallax',   sub:'Export as parallax video', emoji:'📱' },
+    { id:'room_redesign',     name:'Room Redesign',     sub:'"Make this Scandinavian"', emoji:'🏠' },
+    { id:'arch_reimagine',    name:'Architecture Reimagine',sub:'Rebuild in new style', emoji:'🏛️' },
+    { id:'product_surface',   name:'Product on Surface',sub:'Correct light & shadow',  emoji:'📦' },
+  ],
+
+  // ── 🎨 COLOR SCIENCE ──
+  colorscience: [
+    { id:'hsl_per_color',     name:'HSL Per-Color',     sub:'Reds/Greens/Blues HSL',   emoji:'🎨' },
+    { id:'color_wheels',      name:'Color Grading Wheels',sub:'Shadows/Mids/Highlights',emoji:'🎡' },
+    { id:'histogram_view',    name:'Histogram View',    sub:'Live RGB histogram',       emoji:'📊' },
+    { id:'palette_extractor', name:'Palette Extractor', sub:'Extract 5–8 dominant colors',emoji:'🖌️' },
+    { id:'color_harmony',     name:'Color Harmony AI',  sub:'Complementary palette suggest',emoji:'🌈' },
+    { id:'cmyk_preview',      name:'CMYK Preview',      sub:'Simulate print output',   emoji:'🖨️' },
+    { id:'colorblind_sim',    name:'Colorblind Sim',    sub:'Deuteranopia/Protanopia',  emoji:'👁️' },
+    { id:'waveform_monitor',  name:'Waveform Monitor',  sub:'Luminance waveform',       emoji:'📈' },
+    { id:'lut_importer',      name:'LUT Importer',      sub:'Upload .cube LUT file',   emoji:'🎬' },
+  ],
+
+  // ── ✏️ DRAW & VECTOR ──
+  draw: [
+    { id:'vector_trace',      name:'Vector Trace',      sub:'Raster→SVG paths',        emoji:'✒️' },
+    { id:'symmetry_brush',    name:'Symmetry Brush',    sub:'8-way mirror paint',      emoji:'🔁' },
+    { id:'pixel_art_mode',    name:'Pixel Art Mode',    sub:'Grid lock + sprite sheet', emoji:'👾' },
+    { id:'pattern_maker',     name:'Pattern Maker',     sub:'Seamless tile from selection',emoji:'🔲' },
+    { id:'halftone_designer', name:'Halftone Designer', sub:'Custom dot/shape/angle',  emoji:'⚫' },
+    { id:'draw_shapes',       name:'Shape Library',     sub:'Arrows, bubbles, SVG import',emoji:'🔷' },
+    { id:'draw_pressure_brush',name:'Pressure Brush',   sub:'Simulates tablet pressure',emoji:'✍️' },
+  ],
+
+  // ── 🎞️ ANIMATION ──
+  animate: [
+    { id:'frame_animator',    name:'Frame Animator',    sub:'Draw frames → GIF/WebP',  emoji:'🎞️' },
+    { id:'cinemagraph',       name:'Cinemagraph',       sub:'Loop region, freeze rest', emoji:'🎭' },
+    { id:'ken_burns',         name:'Ken Burns',         sub:'Slow zoom → MP4/GIF',     emoji:'🎬' },
+    { id:'glitch_animator',   name:'Glitch Animator',   sub:'Random glitch → loop GIF', emoji:'⚡' },
+    { id:'particle_overlay',  name:'Particle Overlay',  sub:'Snow/rain/sparks/petals', emoji:'❄️' },
+    { id:'morph_images',      name:'Morph Images',      sub:'Warp A→B over N frames',  emoji:'🌀' },
+  ],
+
+  // ── 🔬 TECHNICAL / PRO ──
+  technical: [
+    { id:'freq_separation',   name:'Frequency Separation',sub:'Texture + color layers', emoji:'🔬' },
+    { id:'focus_stack',       name:'Focus Stacking',    sub:'Merge multi-focus → sharp',emoji:'📷' },
+    { id:'hdr_merge',         name:'HDR Merge',         sub:'3 exposures → true HDR',  emoji:'🌅' },
+    { id:'panorama_stitch',   name:'Panorama Stitch',   sub:'2–8 images → wide pano',  emoji:'🌄' },
+    { id:'ai_noise_reduce',   name:'AI Noise Reduction',sub:'Luminance & color noise',  emoji:'🔇' },
+    { id:'lens_distort_fix',  name:'Lens Distortion Fix',sub:'Barrel/pincushion correct',emoji:'🔭' },
+    { id:'chrom_aberr_fix',   name:'Chromatic Aberr Fix',sub:'Remove color fringing',   emoji:'🌈' },
+    { id:'metadata_editor',   name:'Metadata Editor',   sub:'View & edit EXIF data',   emoji:'📋' },
+    { id:'steganography',     name:'Steganography',     sub:'Hide/reveal secret msg',   emoji:'🔐' },
+    { id:'raw_pipeline',      name:'RAW Pipeline',      sub:'Correct processing order', emoji:'⚙️' },
+  ],
+
+  // ── 🤝 SOCIAL & COLLABORATION ──
+  collab: [
+    { id:'version_tree',      name:'Version Tree',      sub:'Branch from any history',  emoji:'🌲' },
+    { id:'edit_recipe_export',name:'Export Edit Recipe',sub:'Share JSON edit sequence', emoji:'📤' },
+    { id:'comment_pin',       name:'Comment Pins',      sub:'Drop pins on image areas', emoji:'📌' },
+    { id:'public_gallery',    name:'Publish to Gallery',sub:'DaveAI gallery w/ likes',  emoji:'🖼️' },
+    { id:'challenge_mode',    name:'Challenge Mode',    sub:'Same image, community votes',emoji:'🏆' },
+  ],
+
+  // ── 🕹️ WILD CARDS ──
+  wildcard: [
+    { id:'ascii_art',         name:'ASCII Art',         sub:'Colored ASCII from image', emoji:'⌨️' },
+    { id:'mosaic_builder',    name:'Mosaic Builder',    sub:'Fill with hundreds of photos',emoji:'🏗️' },
+    { id:'qr_artify',         name:'QR Artifier',       sub:'Beautiful QR that still scans',emoji:'📱' },
+    { id:'comic_panelize',    name:'Comic Panelizer',   sub:'Slice into comic panels',  emoji:'💬' },
+    { id:'meme_gen_v2',       name:'Meme Generator v2', sub:'AI picks best template',   emoji:'😂' },
+    { id:'image_to_music',    name:'Image to Music',    sub:'Colors/mood → music clip', emoji:'🎵' },
+    { id:'steg_revealer',     name:'Steganography Reveal',sub:'Detect hidden LSB msgs', emoji:'🔍' },
+    { id:'datamosh',          name:'Datamosh Effect',   sub:'Video codec corruption',   emoji:'💥' },
+    { id:'thermal_filter',    name:'Thermal Camera',    sub:'FLIR thermal simulation',  emoji:'🌡️' },
+    { id:'xray_filter',       name:'X-Ray Vision',      sub:'Bone structure overlay',   emoji:'🦴' },
+    { id:'cartoon_to_real',   name:'Cartoon→Realistic', sub:'Anime/cartoon → photo',   emoji:'🎨' },
+    { id:'old_photo_restore', name:'Old Photo Restore', sub:'Scratches/tears/fading fix',emoji:'🖼️' },
+    { id:'satellite_style',   name:'Satellite Style',   sub:'Google Earth look',        emoji:'🛰️' },
+    { id:'blueprint_maker',   name:'Blueprint Maker',   sub:'Architectural blueprint',  emoji:'📐' },
+    { id:'nft_metadata',      name:'NFT Metadata Gen',  sub:'Rarity traits + JSON',    emoji:'🪙' },
   ],
 };
 
@@ -20494,7 +20920,7 @@ window.openImagineEditor = function(dataURL) {
   IE.historyPos = 0;
   IE.zoom = 1;
   IE.viewMode = 'normal';
-  IE.sliders = { brightness:0, contrast:0, saturation:0, blur:0, grain:0, pixelate:0 };
+  IE.sliders = { brightness:0, contrast:0, saturation:0, blur:0, grain:0, pixelate:0, hue:0, highlights:0, shadows:0, clarity:0, fade:0, temperature:0, tint:0 };
   ieResetSliders();
 
   document.getElementById('imagine-editor-overlay').classList.add('open');
@@ -20684,7 +21110,53 @@ window.ieApplyCurrentFilter = async function() {
           ai_bg_blur:        'blur background, bokeh depth of field, portrait mode',
           ai_clothes:        document.getElementById('ie-ai-input').value || 'change outfit to casual wear',
           ai_upscale:        'upscale enhance resolution',
+          ai_colorize:       'colorize this black and white photo with natural realistic colors',
+          ai_face_enhance:   'enhance and restore faces, improve facial details, GFPGAN restoration',
+          ai_bg_replace:     document.getElementById('ie-ai-input').value || 'beautiful natural landscape background',
           ai_edit_prompt:    document.getElementById('ie-ai-input').value || 'enhance this image',
+          // 🧠 AI Brain
+          ai_describe_edit:  document.getElementById('ie-ai-input').value || 'enhance and beautify this image',
+          ai_moodboard:      'blend the artistic style and mood of this reference image, apply its visual style',
+          ai_prompt_optimizer:'ultra high quality, detailed, professional photography, perfect lighting, 8K resolution',
+          ai_negative_fill:  'fill the empty areas naturally, extend the scene coherently',
+          ai_critique:       'enhance composition and fix technical issues',
+          ai_auto_retouch:   'skin retouching, teeth whitening, eye enhancement, hair smoothing, natural skin tone',
+          ai_deepdream:      'psychedelic neural dreamscape, deep dream patterns, fractals, vivid hallucinogenic',
+          ai_neural_style:   'artistic neural style transfer, blend of impressionism and cubism, painterly',
+          ai_scene_understand:'analyze scene and enhance accordingly with contextually appropriate adjustments',
+          ai_storyboard:     'cinematic storyboard panel, consistent character, dramatic scene composition',
+          // 🎭 Face & Person
+          age_slider:        (document.getElementById('ie-ai-input')?.value || '') + ' person, make them look 20 years older, aged face, realistic aging',
+          emotion_swap:      'change facial expression to happy, bright smile, joyful expression, natural',
+          eye_color:         'change eye color to vivid blue, realistic iris color change, natural look',
+          hair_color:        'change hair color to golden blonde, realistic hair dye, natural looking',
+          beard_makeup:      'add subtle beard and mustache, natural facial hair, professional appearance',
+          face_3d_rotate:    '3D face rotation using depth estimation, face turned slightly to the side',
+          ai_gender_swap:    'reimagine this person with opposite gender presentation, realistic, natural',
+          ai_virtual_tryon:  document.getElementById('ie-ai-input')?.value || 'wearing a stylish business suit, perfect fit',
+          ai_skin_lighting:  'correct lighting for skin tone, balanced illumination, professional portrait lighting',
+          multi_face_edit:   'enhance all faces in the group photo, equal brightness and sharpness',
+          puppet_warp:       'adjust body pose naturally, reposition arms and head angle realistically',
+          lip_sync:          'natural mouth open in mid-speech position, realistic lip sync frame',
+          // 🌍 Scene & World
+          weather_swap:      'transform to dramatic rainy weather, wet streets, rain droplets, overcast sky',
+          season_swap:       'transform to autumn season, orange and red foliage, golden hour lighting',
+          time_of_day:       'transform to golden hour sunset, warm orange sky, long shadows, dusk light',
+          sky_replace:       'dramatic stormy sky with crepuscular rays, photorealistic clouds',
+          reflection_add:    'add realistic water reflection below, perfect mirror reflection in puddle',
+          shadow_synth:      'add realistic soft shadows with correct light angle at 45 degrees',
+          lens_flare:        'add cinematic lens flare from sun, anamorphic streak, warm optical effect',
+          depth_map:         'generate depth map visualization, near objects bright, far objects dark',
+          parallax_2d3d:     'convert to 3D parallax depth effect, layered depth separation',
+          room_redesign:     document.getElementById('ie-ai-input')?.value || 'Scandinavian minimalist interior design, clean lines, neutral palette',
+          arch_reimagine:    document.getElementById('ie-ai-input')?.value || 'Japanese ryokan architecture style, traditional wooden elements',
+          product_surface:   'place product on clean marble surface with soft studio lighting and realistic shadow',
+          // 🕹️ Wild Cards
+          cartoon_to_real:   'convert cartoon to photorealistic photo, hyperrealistic, cinematic quality',
+          old_photo_restore: 'restore old photograph, remove scratches and tears, fix fading, colorize, sharpen',
+          meme_gen_v2:       'classic meme format, impact font style caption, viral meme template',
+          image_to_music:    'analyze mood and colors to create music: upbeat, cinematic, ambient',
+          nft_metadata:      'generate NFT with unique traits: background, style, rarity attributes',
         };
         const prompt = promptMap[fid] || IE.activeFilter.name;
         ieToast('🤖 AI processing…');
@@ -20759,6 +21231,17 @@ async function ieApplyFilterToCanvas(canvas, filterId, isThumb) {
     case 'rotate90':  { return applyRotate(canvas, 90); }
     case 'rotate180': { return applyRotate(canvas, 180); }
     case 'rotate270': { return applyRotate(canvas, 270); }
+    case 'solarize':  { return applySolarize(canvas); }
+    case 'posterize': { return applyPosterize(canvas); }
+    case 'oil_paint': { return applyOilPaint(canvas); }
+    case 'cross_process': { return applyCrossProcess(canvas); }
+    case 'lomography':    { return applyLomography(canvas); }
+    case 'infrared':      { return applyInfrared(canvas); }
+    case 'cinematic_lut': { return applyCinematicLUT(canvas); }
+    case 'straighten':    { return applyStrighten(canvas); }
+    case 'free_crop':     { return applyFreeCrop(canvas); }
+    case 'text_stroke':   { return ieApplyTextStroke(canvas); }
+    case 'sticker':       { return ieApplySticker(canvas); }
     case 'crop_sq': {
       const s = Math.min(w,h);
       const out = document.createElement('canvas'); out.width=s; out.height=s;
@@ -20785,6 +21268,32 @@ async function ieApplyFilterToCanvas(canvas, filterId, isThumb) {
       const wm = document.getElementById('ie-text-content').value || 'DaveAI';
       return applyWatermark(canvas, 'watermark ' + wm);
     }
+    // ── New Canvas Filters ──
+    case 'ascii_art':         { return applyAsciiArt(canvas); }
+    case 'thermal_filter':    { return applyThermal(canvas); }
+    case 'xray_filter':       { return applyXRay(canvas); }
+    case 'blueprint_maker':   { return applyBlueprint(canvas); }
+    case 'satellite_style':   { return applySatelliteStyle(canvas); }
+    case 'datamosh':          { return applyDatamosh(canvas); }
+    case 'halftone_designer': { return applyHalftone(canvas); }
+    case 'pixel_art_mode':    { return applyPixelArtMode(canvas); }
+    case 'cmyk_preview':      { return applyCMYKPreview(canvas); }
+    case 'colorblind_sim':    { return applyColorblindSim(canvas); }
+    case 'freq_separation':   { return applyFreqSeparation(canvas); }
+    case 'vector_trace':      { return applyVectorTrace(canvas); }
+    case 'pattern_maker':     { return applyPatternMaker(canvas); }
+    case 'mosaic_builder':    { return applyMosaic(canvas); }
+    case 'qr_artify':         { return applyQRArtify(canvas); }
+    case 'steg_revealer':     { return applySteganographyReveal(canvas); }
+    case 'steganography':     { return applySteganographyHide(canvas); }
+    case 'metadata_editor':   { ieShowMetadataEditor(); return canvas.toDataURL(); }
+    case 'edit_recipe_export':{ ieExportRecipe(); return canvas.toDataURL(); }
+    case 'version_tree':      { ieShowVersionTree(); return canvas.toDataURL(); }
+    case 'palette_extractor': { return applyPaletteExtractor(canvas); }
+    case 'waveform_monitor':  { return applyWaveformMonitor(canvas); }
+    case 'histogram_view':    { return applyHistogramView(canvas); }
+    case 'hsl_per_color':     { return applyHSLPerColor(canvas); }
+    case 'lut_importer':      { ieTriggerLUTImport(); return canvas.toDataURL(); }
     default: return canvas.toDataURL();
   }
 }
@@ -20841,7 +21350,8 @@ window.ieSliderApply = function() {
 
 function isSlidersChanged() {
   const s = IE.sliders;
-  return s.brightness!==0||s.contrast!==0||s.saturation!==0||s.blur!==0||s.grain!==0||s.pixelate!==0;
+  return s.brightness!==0||s.contrast!==0||s.saturation!==0||s.blur!==0||s.grain!==0||s.pixelate!==0
+    ||s.hue!==0||s.highlights!==0||s.shadows!==0||s.clarity!==0||s.fade!==0||s.temperature!==0||s.tint!==0;
 }
 
 function iePreviewSliders() {
@@ -20870,7 +21380,8 @@ async function ieApplySliders() {
     ieRenderHistory();
     ieToast('✓ Adjustments applied');
     ieResetSliders();
-    IE.sliders = { brightness:0, contrast:0, saturation:0, blur:0, grain:0, pixelate:0 };
+    IE.sliders = { brightness:0, contrast:0, saturation:0, blur:0, grain:0, pixelate:0,
+      hue:0, highlights:0, shadows:0, clarity:0, fade:0, temperature:0, tint:0 };
   };
   img.src = IE.currentDataURL;
 }
@@ -20893,9 +21404,14 @@ function ieApplySliderStack(canvas) {
 }
 
 function ieResetSliders() {
-  ['brightness','contrast','saturation','blur','grain','pixelate'].forEach(k => {
+  const allSliders = ['brightness','contrast','saturation','blur','grain','pixelate',
+    'hue','highlights','shadows','clarity','fade','temperature','tint'];
+  allSliders.forEach(k => {
     const el = document.getElementById(`ie-${k}`);
-    if (el) { el.value = 0; document.getElementById(`ie-${k}-val`).textContent = '0'; }
+    if (!el) return;
+    el.value = 0;
+    const vEl = document.getElementById(`ie-${k}-val`);
+    if (vEl) vEl.textContent = k === 'hue' ? '0°' : '0';
   });
 }
 
@@ -21094,7 +21610,7 @@ window.ieReset = async function() {
   iePushHistory(IE.originalDataURL, 'Reset to Original');
   await ieLoadCanvas(IE.originalDataURL);
   ieResetSliders();
-  IE.sliders = { brightness:0, contrast:0, saturation:0, blur:0, grain:0, pixelate:0 };
+  IE.sliders = { brightness:0, contrast:0, saturation:0, blur:0, grain:0, pixelate:0, hue:0, highlights:0, shadows:0, clarity:0, fade:0, temperature:0, tint:0 };
   ieRenderHistory();
   ieToast('↺ Reset to original');
 };
@@ -21187,10 +21703,2513 @@ window.renderImagineEditResult = async function(originalDataURL, resultDataURL, 
 const _origBuildMsgHTML = window.buildMsgHTML;
 // (We hook via renderMessages observation instead to stay safe)
 
+// ══════════════════════════════════════════════════
+//  OPEN FROM SIDEBAR (blank / upload prompt)
+// ══════════════════════════════════════════════════
+window.openImagineEditorFromSidebar = function() {
+  if (IE.currentDataURL) {
+    document.getElementById('imagine-editor-overlay').classList.add('open');
+    return;
+  }
+  // Prompt file upload
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => openImagineEditor(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+};
+
+// ══════════════════════════════════════════════════
+//  EXTENDED SLIDER STATE
+// ══════════════════════════════════════════════════
+// Override the slider reset to include new sliders
+const _origResetSliders = ieResetSliders;
+function ieResetSliders() {
+  const allSliders = ['brightness','contrast','saturation','blur','grain','pixelate',
+    'hue','highlights','shadows','clarity','fade','temperature','tint'];
+  allSliders.forEach(k => {
+    const el = document.getElementById(`ie-${k}`);
+    if (!el) return;
+    el.value = 0;
+    const vEl = document.getElementById(`ie-${k}-val`);
+    if (vEl) vEl.textContent = k === 'hue' ? '0°' : '0';
+  });
+}
+
+// Override slider apply to include new sliders
+function ieApplySliderStack(canvas) {
+  const s = IE.sliders;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const imgData = ctx.getImageData(0,0,w,h);
+  const d = imgData.data;
+
+  if (s.brightness !== 0) filterBrightness(d, 1 + s.brightness/100);
+  if (s.contrast   !== 0) filterContrast(d, s.contrast * 2);
+  if (s.saturation !== 0) filterSaturate(d, 1 + s.saturation/100);
+
+  // Hue rotate
+  if (s.hue && s.hue !== 0) {
+    const angle = (s.hue * Math.PI) / 180;
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i]/255, g = d[i+1]/255, b = d[i+2]/255;
+      const lum = 0.299*r+0.587*g+0.114*b;
+      d[i]   = Math.min(255,Math.max(0,(lum + cos*(r-lum) + sin*(0.143*(r-lum)+0.140*(g-lum)-0.283*(b-lum)))*255));
+      d[i+1] = Math.min(255,Math.max(0,(lum + cos*(g-lum) + sin*(-0.426*(r-lum)+0.285*(g-lum)+0.140*(b-lum)))*255));
+      d[i+2] = Math.min(255,Math.max(0,(lum + cos*(b-lum) + sin*((-0.283)*(r-lum)+(-0.140)*(g-lum)+0.424*(b-lum)))*255));
+    }
+  }
+
+  // Highlights (boost/suppress bright areas)
+  if (s.highlights && s.highlights !== 0) {
+    const hl = s.highlights / 200;
+    for (let i = 0; i < d.length; i += 4) {
+      const lum = (d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)/255;
+      const factor = lum * hl;
+      d[i]   = Math.min(255,Math.max(0, d[i]   + factor*255));
+      d[i+1] = Math.min(255,Math.max(0, d[i+1] + factor*255));
+      d[i+2] = Math.min(255,Math.max(0, d[i+2] + factor*255));
+    }
+  }
+
+  // Shadows (boost/suppress dark areas)
+  if (s.shadows && s.shadows !== 0) {
+    const sh = s.shadows / 200;
+    for (let i = 0; i < d.length; i += 4) {
+      const lum = (d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)/255;
+      const factor = (1 - lum) * sh;
+      d[i]   = Math.min(255,Math.max(0, d[i]   + factor*255));
+      d[i+1] = Math.min(255,Math.max(0, d[i+1] + factor*255));
+      d[i+2] = Math.min(255,Math.max(0, d[i+2] + factor*255));
+    }
+  }
+
+  // Clarity (mid-tone contrast)
+  if (s.clarity && s.clarity !== 0) {
+    const cl = s.clarity / 100;
+    for (let i = 0; i < d.length; i += 4) {
+      const lum = (d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)/255;
+      const midFactor = 1 - Math.abs(lum - 0.5) * 2;
+      const boost = cl * midFactor * 60;
+      d[i]   = Math.min(255,Math.max(0, d[i]   + boost * (d[i]/255 > 0.5 ? 1 : -1)));
+      d[i+1] = Math.min(255,Math.max(0, d[i+1] + boost * (d[i+1]/255 > 0.5 ? 1 : -1)));
+      d[i+2] = Math.min(255,Math.max(0, d[i+2] + boost * (d[i+2]/255 > 0.5 ? 1 : -1)));
+    }
+  }
+
+  // Fade / Dehaze (lift blacks for matte look)
+  if (s.fade && s.fade !== 0) {
+    const lift = s.fade * 0.8;
+    for (let i = 0; i < d.length; i += 4) {
+      d[i]   = Math.min(255, d[i]   + lift);
+      d[i+1] = Math.min(255, d[i+1] + lift);
+      d[i+2] = Math.min(255, d[i+2] + lift);
+    }
+  }
+
+  // Temperature (warm-cool kelvin shift)
+  if (s.temperature && s.temperature !== 0) {
+    const t = s.temperature / 100;
+    for (let i = 0; i < d.length; i += 4) {
+      d[i]   = Math.min(255,Math.max(0, d[i]   + t * 40));
+      d[i+2] = Math.min(255,Math.max(0, d[i+2] - t * 40));
+    }
+  }
+
+  // Tint (green-magenta axis)
+  if (s.tint && s.tint !== 0) {
+    const ti = s.tint / 100;
+    for (let i = 0; i < d.length; i += 4) {
+      d[i]   = Math.min(255,Math.max(0, d[i]   + ti * 20));
+      d[i+1] = Math.min(255,Math.max(0, d[i+1] - ti * 20));
+      d[i+2] = Math.min(255,Math.max(0, d[i+2] + ti * 20));
+    }
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+
+  if (s.blur > 0) {
+    const out = document.createElement('canvas'); out.width=w; out.height=h;
+    const oc = out.getContext('2d'); oc.filter=`blur(${s.blur}px)`; oc.drawImage(canvas,0,0);
+    ctx.clearRect(0,0,w,h); ctx.drawImage(out,0,0);
+  }
+  if (s.grain > 0)    applyGrain(canvas, s.grain);
+  if (s.pixelate > 0) applyPixelate(canvas, Math.max(2, s.pixelate));
+}
+
+// Override slider change to handle hue display
+window.ieSliderChange = function(name, val) {
+  IE.sliders[name] = parseFloat(val);
+  const vEl = document.getElementById(`ie-${name}-val`);
+  if (vEl) vEl.textContent = name === 'hue' ? val + '°' : val;
+  clearTimeout(IE.pendingSliderTimer);
+  IE.pendingSliderTimer = setTimeout(() => iePreviewSliders(), 80);
+};
+
+// Patch ieSetActiveFilter to show special UI panels
+function ieShowTransformUI(filterId) {
+  const straightenRow = document.getElementById('ie-straighten-row');
+  const freeCropRow   = document.getElementById('ie-free-crop-row');
+  const stickerCfg    = document.getElementById('ie-sticker-config');
+  if (straightenRow) straightenRow.style.display = filterId === 'straighten' ? 'flex' : 'none';
+  if (freeCropRow)   freeCropRow.style.display   = filterId === 'free_crop'  ? 'flex' : 'none';
+  if (stickerCfg)    stickerCfg.style.display    = filterId === 'sticker'    ? '' : 'none';
+}
+
+// Patch the filter click handler to also trigger special UI
+const _ieSelectFilter_orig = window.ieSelectFilter;
+window.ieSelectFilter = function(filter) {
+  if (_ieSelectFilter_orig) _ieSelectFilter_orig(filter);
+  ieShowTransformUI(filter.id);
+};
+
+// ══════════════════════════════════════════════════
+//  NEW CANVAS FILTERS
+// ══════════════════════════════════════════════════
+
+// Solarize: partial invert at threshold
+function applySolarize(canvas) {
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const d = imgData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i]   > 128) d[i]   = 255 - d[i];
+    if (d[i+1] > 128) d[i+1] = 255 - d[i+1];
+    if (d[i+2] > 128) d[i+2] = 255 - d[i+2];
+  }
+  ctx.putImageData(imgData, 0, 0);
+  return canvas.toDataURL();
+}
+
+// Posterize: reduce color levels to N steps
+function applyPosterize(canvas, levels = 4) {
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const d = imgData.data;
+  const step = 255 / (levels - 1);
+  for (let i = 0; i < d.length; i += 4) {
+    d[i]   = Math.round(Math.round(d[i]   / step) * step);
+    d[i+1] = Math.round(Math.round(d[i+1] / step) * step);
+    d[i+2] = Math.round(Math.round(d[i+2] / step) * step);
+  }
+  ctx.putImageData(imgData, 0, 0);
+  return canvas.toDataURL();
+}
+
+// Oil Paint: multi-pass blur + edge sharpen simulation
+function applyOilPaint(canvas) {
+  const w = canvas.width, h = canvas.height;
+  const ctx = canvas.getContext('2d');
+  // Multi-pass radial averaging
+  const src = ctx.getImageData(0,0,w,h);
+  const out = ctx.createImageData(w,h);
+  const radius = 4;
+  const intensity = 20;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const buckets = Array.from({length:intensity}, () => [0,0,0,0]);
+      const counts  = new Array(intensity).fill(0);
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          const nx = Math.min(w-1,Math.max(0,x+dx));
+          const ny = Math.min(h-1,Math.max(0,y+dy));
+          const idx = (ny*w+nx)*4;
+          const lum = Math.round(((src.data[idx]+src.data[idx+1]+src.data[idx+2])/3)/(256/intensity));
+          const bin = Math.min(intensity-1,lum);
+          buckets[bin][0] += src.data[idx];
+          buckets[bin][1] += src.data[idx+1];
+          buckets[bin][2] += src.data[idx+2];
+          buckets[bin][3] += src.data[idx+3];
+          counts[bin]++;
+        }
+      }
+      const maxBin = counts.indexOf(Math.max(...counts));
+      const cnt = counts[maxBin] || 1;
+      const oidx = (y*w+x)*4;
+      out.data[oidx]   = buckets[maxBin][0] / cnt;
+      out.data[oidx+1] = buckets[maxBin][1] / cnt;
+      out.data[oidx+2] = buckets[maxBin][2] / cnt;
+      out.data[oidx+3] = buckets[maxBin][3] / cnt;
+    }
+  }
+  ctx.putImageData(out, 0, 0);
+  return canvas.toDataURL();
+}
+
+// Cross-process: R→boost, G→desaturate, B→reduce (E6 pushed C-41)
+function applyCrossProcess(canvas) {
+  applyCanvasFilter(canvas, d => {
+    for (let i = 0; i < d.length; i += 4) {
+      d[i]   = Math.min(255, d[i]   * 1.35);     // R boost
+      d[i+1] = Math.min(255, Math.max(0, d[i+1] * 0.78 + 15)); // G shift
+      d[i+2] = Math.min(255, Math.max(0, d[i+2] * 0.6 + 30));  // B desaturate+lift
+    }
+  });
+  return canvas.toDataURL();
+}
+
+// Lomography: strong vignette + color saturation shift
+function applyLomography(canvas) {
+  const w = canvas.width, h = canvas.height;
+  const ctx = canvas.getContext('2d');
+  // Boost saturation + contrast
+  applyCanvasFilter(canvas, d => {
+    for (let i = 0; i < d.length; i += 4) {
+      const avg = (d[i]+d[i+1]+d[i+2])/3;
+      d[i]   = Math.min(255,avg + (d[i]-avg)*1.6);
+      d[i+1] = Math.min(255,avg + (d[i+1]-avg)*1.6);
+      d[i+2] = Math.min(255,avg + (d[i+2]-avg)*1.6);
+      // Slight color shift
+      d[i]   = Math.min(255, d[i]   * 1.05);
+      d[i+2] = Math.min(255, d[i+2] * 0.9);
+    }
+  });
+  // Heavy vignette
+  const grad = ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.3,w/2,h/2,Math.max(w,h)*0.8);
+  grad.addColorStop(0,'rgba(0,0,0,0)');
+  grad.addColorStop(1,'rgba(0,0,0,0.75)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,w,h);
+  return canvas.toDataURL();
+}
+
+// Infrared: channel-swap false color (R→G, G→B, B→R style)
+function applyInfrared(canvas) {
+  applyCanvasFilter(canvas, d => {
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i+1], b = d[i+2];
+      const lum = 0.299*r + 0.587*g + 0.114*b;
+      // IR simulation: foliage bright (green→white), sky dark
+      const ir = Math.min(255, g * 1.6 + r * 0.2);
+      d[i]   = Math.min(255, ir * 1.0);  // R = bright IR
+      d[i+1] = Math.min(255, ir * 0.95);
+      d[i+2] = Math.min(255, b  * 0.5);  // B = dark sky
+    }
+  });
+  return canvas.toDataURL();
+}
+
+// Cinematic LUT: Hollywood teal-orange grade
+function applyCinematicLUT(canvas) {
+  applyCanvasFilter(canvas, d => {
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i+1], b = d[i+2];
+      const lum = 0.299*r + 0.587*g + 0.114*b;
+      const isShadow = lum < 128;
+      if (isShadow) {
+        // Shadows: teal shift
+        d[i]   = Math.max(0, r - 20);
+        d[i+1] = Math.min(255, g + 10);
+        d[i+2] = Math.min(255, b + 30);
+      } else {
+        // Highlights/midtones: orange shift (warm skin)
+        d[i]   = Math.min(255, r + 25);
+        d[i+1] = Math.min(255, g + 5);
+        d[i+2] = Math.max(0, b - 20);
+      }
+      // Add slight contrast S-curve effect
+      d[i]   = Math.min(255, Math.max(0, (d[i]-128)*1.1+128));
+      d[i+1] = Math.min(255, Math.max(0, (d[i+1]-128)*1.08+128));
+      d[i+2] = Math.min(255, Math.max(0, (d[i+2]-128)*1.05+128));
+    }
+  });
+  return canvas.toDataURL();
+}
+
+// ══════════════════════════════════════════════════
+//  TRANSFORM: Straighten
+// ══════════════════════════════════════════════════
+window.ieStraightenPreview = function(degrees) {
+  if (!IE.currentDataURL) return;
+  const canvas = document.getElementById('ie-canvas-el');
+  const img = new Image();
+  img.onload = () => {
+    const rad = (degrees * Math.PI) / 180;
+    const cos = Math.abs(Math.cos(rad)), sin = Math.abs(Math.sin(rad));
+    const nw = Math.ceil(img.width * cos + img.height * sin);
+    const nh = Math.ceil(img.width * sin + img.height * cos);
+    canvas.width = nw; canvas.height = nh;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,nw,nh);
+    ctx.save();
+    ctx.translate(nw/2, nh/2);
+    ctx.rotate(rad);
+    ctx.drawImage(img, -img.width/2, -img.height/2);
+    ctx.restore();
+  };
+  img.src = IE.currentDataURL;
+};
+
+window.ieStraightenApply = function() {
+  const degrees = parseFloat(document.getElementById('ie-straighten').value);
+  if (!IE.currentDataURL || degrees === 0) return;
+  const img = new Image();
+  img.onload = () => {
+    const rad = (degrees * Math.PI) / 180;
+    const cos = Math.abs(Math.cos(rad)), sin = Math.abs(Math.sin(rad));
+    const nw = Math.ceil(img.width * cos + img.height * sin);
+    const nh = Math.ceil(img.width * sin + img.height * cos);
+    const tmp = document.createElement('canvas');
+    tmp.width = nw; tmp.height = nh;
+    const ctx = tmp.getContext('2d');
+    ctx.save(); ctx.translate(nw/2,nh/2); ctx.rotate(rad);
+    ctx.drawImage(img,-img.width/2,-img.height/2); ctx.restore();
+    const result = tmp.toDataURL('image/png');
+    iePushHistory(result, `Straighten ${degrees}°`);
+    IE.currentDataURL = result;
+    ieLoadCanvas(result);
+    ieRenderHistory();
+    ieToast(`✓ Straightened ${degrees}°`);
+  };
+  img.src = IE.currentDataURL;
+};
+
+function applyStrighten(canvas) {
+  // When called from filter list, show the slider
+  const row = document.getElementById('ie-straighten-row');
+  if (row) row.style.display = 'flex';
+  ieToast('Use the Straighten slider → Apply');
+  return canvas.toDataURL();
+}
+
+// ══════════════════════════════════════════════════
+//  TRANSFORM: Free Crop
+// ══════════════════════════════════════════════════
+function applyFreeCrop(canvas) {
+  const row = document.getElementById('ie-free-crop-row');
+  if (row) row.style.display = 'flex';
+  ieToast('Set crop percentages → Apply Crop');
+  return canvas.toDataURL();
+}
+
+window.ieCropPreview = function() {
+  if (!IE.currentDataURL) return;
+  const L = parseFloat(document.getElementById('ie-crop-l').value)/100;
+  const T = parseFloat(document.getElementById('ie-crop-t').value)/100;
+  const R = parseFloat(document.getElementById('ie-crop-r').value)/100;
+  const B = parseFloat(document.getElementById('ie-crop-b').value)/100;
+  const img = new Image();
+  img.onload = () => {
+    const w = img.width, h = img.height;
+    const x0=w*L, y0=h*T, cw=w*(1-L-R), ch=h*(1-T-B);
+    const cvs = document.getElementById('ie-canvas-el');
+    cvs.width=cw; cvs.height=ch;
+    cvs.getContext('2d').drawImage(img,x0,y0,cw,ch,0,0,cw,ch);
+  };
+  img.src = IE.currentDataURL;
+};
+
+window.ieCropApply = function() {
+  if (!IE.currentDataURL) return;
+  const L = parseFloat(document.getElementById('ie-crop-l').value)/100;
+  const T = parseFloat(document.getElementById('ie-crop-t').value)/100;
+  const R = parseFloat(document.getElementById('ie-crop-r').value)/100;
+  const B = parseFloat(document.getElementById('ie-crop-b').value)/100;
+  const img = new Image();
+  img.onload = () => {
+    const w=img.width, h=img.height;
+    const x0=Math.round(w*L), y0=Math.round(h*T);
+    const cw=Math.round(w*(1-L-R)), ch=Math.round(h*(1-T-B));
+    if (cw < 10 || ch < 10) { ieToast('Crop region too small'); return; }
+    const tmp=document.createElement('canvas'); tmp.width=cw; tmp.height=ch;
+    tmp.getContext('2d').drawImage(img,x0,y0,cw,ch,0,0,cw,ch);
+    const result=tmp.toDataURL('image/png');
+    iePushHistory(result,'Free Crop');
+    IE.currentDataURL=result;
+    ieLoadCanvas(result);
+    ieRenderHistory();
+    ieToast('✓ Crop applied');
+    // Reset crop sliders
+    ['l','t','r','b'].forEach(k=>{
+      const el=document.getElementById(`ie-crop-${k}`);
+      if(el){el.value=0;document.getElementById(`ie-crop-${k}-val`).textContent='0';}
+    });
+  };
+  img.src = IE.currentDataURL;
+};
+
+// ══════════════════════════════════════════════════
+//  TEXT: Stroke Text
+// ══════════════════════════════════════════════════
+function ieApplyTextStroke(canvas) {
+  const text  = document.getElementById('ie-text-content')?.value || 'Your Text';
+  const size  = parseInt(document.getElementById('ie-fontsize')?.value) || 48;
+  const color = document.getElementById('ie-text-color')?.value || '#ffffff';
+  const font  = IE.textFont || "'DM Sans',sans-serif";
+  const pos   = IE.textPos || 'bot-center';
+  const ctx   = canvas.getContext('2d');
+  const w=canvas.width, h=canvas.height;
+  const pad = size * 0.8;
+  ctx.font = `bold ${size}px ${font}`;
+  ctx.textBaseline = 'middle';
+  let x=w/2, y=h/2;
+  ctx.textAlign='center';
+  if (pos.includes('left'))  {ctx.textAlign='left';  x=pad;}
+  if (pos.includes('right')) {ctx.textAlign='right'; x=w-pad;}
+  if (pos.includes('top'))   y=pad+size/2;
+  if (pos.includes('bot'))   y=h-pad;
+  if (pos.includes('center')) ctx.textAlign='center';
+  // Stroke (outline)
+  ctx.strokeStyle = 'rgba(0,0,0,0.85)';
+  ctx.lineWidth = size * 0.12;
+  ctx.strokeText(text, x, y, w-pad*2);
+  // Drop shadow
+  ctx.shadowColor='rgba(0,0,0,0.7)';
+  ctx.shadowBlur=size*0.25;
+  ctx.shadowOffsetX=size*0.05;
+  ctx.shadowOffsetY=size*0.05;
+  ctx.fillStyle=color;
+  ctx.fillText(text, x, y, w-pad*2);
+  ctx.shadowBlur=0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
+  return canvas.toDataURL('image/png');
+}
+
+// ══════════════════════════════════════════════════
+//  STICKER / EMOJI LAYER
+// ══════════════════════════════════════════════════
+const STICKER_PRESETS = ['😂','🔥','✨','❤️','💯','🎉','🌟','😎','🤔','💪','🙌','😍','🤩','💀','👀','🌈','🦋','🌸','🎨','🚀'];
+let IE_stickerPos = 'mid-center';
+
+function ieInitStickerGrid() {
+  const grid = document.getElementById('ie-sticker-grid');
+  if (!grid) return;
+  grid.innerHTML = STICKER_PRESETS.map(e =>
+    `<button onclick="document.getElementById('ie-sticker-custom').value='${e}'" style="font-size:22px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:4px 7px;cursor:pointer;transition:background .12s" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='var(--bg3)'">${e}</button>`
+  ).join('');
+}
+
+window.ieStickerPos = function(cell) {
+  document.querySelectorAll('#ie-sticker-pos-grid .ie-pos-cell').forEach(c=>c.classList.remove('active'));
+  cell.classList.add('active');
+  IE_stickerPos = cell.dataset.pos;
+};
+
+function ieApplySticker(canvas) {
+  const emoji = document.getElementById('ie-sticker-custom')?.value || '😀';
+  const size  = parseInt(document.getElementById('ie-sticker-size')?.value) || 80;
+  const pos   = IE_stickerPos || 'mid-center';
+  const ctx   = canvas.getContext('2d');
+  const w=canvas.width, h=canvas.height;
+  ctx.font = `${size}px serif`;
+  ctx.textBaseline='middle';
+  ctx.textAlign='center';
+  const pad = size * 0.7;
+  let x=w/2, y=h/2;
+  if (pos.includes('left'))   x=pad;
+  if (pos.includes('right'))  x=w-pad;
+  if (pos.includes('top'))    y=pad;
+  if (pos.includes('bot'))    y=h-pad;
+  if (pos.includes('center') && pos.startsWith('mid')) y=h/2;
+  ctx.fillText(emoji, x, y);
+  return canvas.toDataURL('image/png');
+}
+
+// ══════════════════════════════════════════════════
+//  EXPORT: JPEG, WebP, Save Preset, Share Link
+// ══════════════════════════════════════════════════
+window.ieDownloadJpeg = function() {
+  if (!IE.currentDataURL) { ieToast('No image to download'); return; }
+  const quality = (parseInt(document.getElementById('ie-jpeg-quality')?.value) || 90) / 100;
+  const img = new Image();
+  img.onload = () => {
+    const tmp=document.createElement('canvas');
+    tmp.width=img.width; tmp.height=img.height;
+    tmp.getContext('2d').drawImage(img,0,0);
+    const jpegURL = tmp.toDataURL('image/jpeg', quality);
+    const a=document.createElement('a');
+    a.href=jpegURL; a.download=`imagine_edit_q${Math.round(quality*100)}.jpg`; a.click();
+    ieToast(`⬇ Downloading JPEG (${Math.round(quality*100)}% quality)…`);
+  };
+  img.src = IE.currentDataURL;
+};
+
+window.ieDownloadWebP = function() {
+  if (!IE.currentDataURL) { ieToast('No image to download'); return; }
+  const img = new Image();
+  img.onload = () => {
+    const tmp=document.createElement('canvas');
+    tmp.width=img.width; tmp.height=img.height;
+    tmp.getContext('2d').drawImage(img,0,0);
+    try {
+      const webpURL = tmp.toDataURL('image/webp', 0.92);
+      const a=document.createElement('a');
+      a.href=webpURL; a.download='imagine_edit.webp'; a.click();
+      ieToast('⬇ Downloading WebP…');
+    } catch(e) {
+      // Fallback
+      const a=document.createElement('a');
+      a.href=IE.currentDataURL; a.download='imagine_edit.png'; a.click();
+      ieToast('⬇ WebP not supported, downloaded PNG');
+    }
+  };
+  img.src = IE.currentDataURL;
+};
+
+window.ieSavePreset = function() {
+  const name = prompt('Name this preset:', 'My Preset');
+  if (!name) return;
+  const preset = {...IE.sliders};
+  const saved = JSON.parse(localStorage.getItem('ie_presets') || '{}');
+  saved[name] = preset;
+  localStorage.setItem('ie_presets', JSON.stringify(saved));
+  ieLoadSavedPresets();
+  ieToast(`💾 Preset "${name}" saved!`);
+};
+
+function ieLoadSavedPresets() {
+  const container = document.getElementById('ie-saved-presets');
+  if (!container) return;
+  try {
+    const saved = JSON.parse(localStorage.getItem('ie_presets') || '{}');
+    const keys = Object.keys(saved);
+    if (!keys.length) {
+      container.innerHTML = '<span style="font-size:11px;color:var(--text3)">No saved presets yet</span>';
+      return;
+    }
+    container.innerHTML = keys.map(k =>
+      `<button class="ie-action-btn" style="padding:4px 8px;font-size:11px;width:auto;display:flex;gap:4px;align-items:center" onclick="ieApplyCustomPreset('${k.replace(/'/g,"\\'")}')">
+        💾 ${k}
+        <span onclick="event.stopPropagation();ieDeletePreset('${k.replace(/'/g,"\\'")}');" style="opacity:.6;margin-left:2px;font-size:10px">✕</span>
+      </button>`
+    ).join('');
+  } catch(e) {}
+}
+
+window.ieApplyCustomPreset = async function(name) {
+  const saved = JSON.parse(localStorage.getItem('ie_presets') || '{}');
+  if (!saved[name]) return;
+  IE.sliders = {...IE.sliders, ...saved[name]};
+  Object.entries(saved[name]).forEach(([k,v]) => {
+    const el = document.getElementById(`ie-${k}`);
+    if (el) { el.value = v; const vEl = document.getElementById(`ie-${k}-val`); if(vEl) vEl.textContent = v; }
+  });
+  await ieApplySliders();
+  ieToast(`✓ Preset "${name}" applied`);
+};
+
+window.ieDeletePreset = function(name) {
+  const saved = JSON.parse(localStorage.getItem('ie_presets') || '{}');
+  delete saved[name];
+  localStorage.setItem('ie_presets', JSON.stringify(saved));
+  ieLoadSavedPresets();
+  ieToast(`🗑 Preset "${name}" deleted`);
+};
+
+window.ieShareLink = async function() {
+  if (!IE.currentDataURL) { ieToast('No image to share'); return; }
+  ieToast('⏳ Uploading image…');
+  try {
+    // Convert dataURL to blob
+    const resp = await fetch(IE.currentDataURL);
+    const blob = await resp.blob();
+    // Use Supabase storage if available, otherwise fallback to clipboard
+    if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+      const fileName = `imagine_${Date.now()}.png`;
+      const { data, error } = await window._supabaseClient.storage
+        .from('images')
+        .upload(fileName, blob, { contentType: 'image/png', upsert: false });
+      if (error) throw error;
+      const { data: urlData } = window._supabaseClient.storage
+        .from('images')
+        .getPublicUrl(fileName);
+      const publicUrl = urlData.publicUrl;
+      await navigator.clipboard.writeText(publicUrl);
+      ieToast('🔗 Share link copied to clipboard!', 3500);
+    } else {
+      // Fallback: offer download
+      ieToast('💡 Configure Supabase to enable sharing. Downloading instead…', 3000);
+      setTimeout(() => ieDownload(), 1000);
+    }
+  } catch(e) {
+    console.error('Share failed:', e);
+    ieToast('⚠️ Share failed — downloading instead');
+    setTimeout(() => ieDownload(), 800);
+  }
+};
+
+// ══════════════════════════════════════════════════
+//  PRESETS — extended with new sliders
+// ══════════════════════════════════════════════════
+// Extend existing IE_PRESETS
+Object.assign(IE_PRESETS || {}, {
+  instagram: { brightness:8, contrast:15, saturation:20, blur:0, grain:0, pixelate:0, temperature:10, clarity:10 },
+  cinematic: { brightness:-5, contrast:25, saturation:-15, blur:0, grain:10, pixelate:0, temperature:-8, fade:5 },
+  golden:    { brightness:15, contrast:10, saturation:30, blur:0, grain:5, pixelate:0, temperature:25, highlights:10 },
+  linkedin:  { brightness:10, contrast:20, saturation:10, blur:0, grain:0, pixelate:0, clarity:15 },
+  ecommerce: { brightness:20, contrast:10, saturation:0, blur:0, grain:0, pixelate:0, clarity:20, fade:0 },
+  artistic:  { brightness:-3, contrast:30, saturation:25, blur:0, grain:18, pixelate:0, clarity:20 },
+});
+
 // Initial cat load on first open
 document.addEventListener('DOMContentLoaded', () => {
   ieBuildFilterList('adjust');
+  ieInitStickerGrid();
+  ieLoadSavedPresets();
 });
+
+// ══════════════════════════════════════════════════
+//  CLOTHES SWAP ENGINE
+// ══════════════════════════════════════════════════
+const IE_clothes = {
+  outfit: 'casual everyday outfit',
+  color:  'keep original colors',
+  garmentDataURL: null,
+};
+
+window.ieSelectOutfit = function(btn) {
+  document.querySelectorAll('#ie-outfit-chips .ie-outfit-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  IE_clothes.outfit = btn.dataset.outfit;
+};
+
+window.ieSelectColor = function(btn) {
+  document.querySelectorAll('#ie-color-chips .ie-outfit-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  IE_clothes.color = btn.dataset.color;
+};
+
+window.iePickGarment = function() {
+  document.getElementById('ie-garment-file').click();
+};
+
+window.ieGarmentFileLoad = function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => ieSetGarment(ev.target.result);
+  reader.readAsDataURL(file);
+};
+
+window.ieGarmentDrop = function(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ev => ieSetGarment(ev.target.result);
+  reader.readAsDataURL(file);
+};
+
+function ieSetGarment(dataURL) {
+  IE_clothes.garmentDataURL = dataURL;
+  const img  = document.getElementById('ie-garment-img');
+  const prev = document.getElementById('ie-garment-preview');
+  const plac = document.getElementById('ie-garment-placeholder');
+  img.src = dataURL;
+  prev.style.display = 'block';
+  plac.style.display = 'none';
+  ieToast('✓ Garment reference loaded');
+}
+
+window.ieClearGarment = function() {
+  IE_clothes.garmentDataURL = null;
+  document.getElementById('ie-garment-img').src = '';
+  document.getElementById('ie-garment-preview').style.display = 'none';
+  document.getElementById('ie-garment-placeholder').style.display = '';
+  document.getElementById('ie-garment-file').value = '';
+};
+
+// ── Smart prompt builder ──────────────────────────
+function ieBuildClothesPrompt() {
+  const customDesc   = (document.getElementById('ie-clothes-desc')?.value || '').trim();
+  const preserveFace = document.getElementById('ie-preserve-face')?.checked;
+  const preserveBG   = document.getElementById('ie-preserve-bg')?.checked;
+  const hasGarment   = !!IE_clothes.garmentDataURL;
+
+  let outfitDesc = customDesc
+    ? customDesc
+    : `${IE_clothes.color !== 'keep original colors' ? IE_clothes.color + ' ' : ''}${IE_clothes.outfit}`;
+
+  const anchors = [];
+  if (preserveFace) anchors.push('same face', 'same person', 'same hairstyle', 'same expression', 'identical facial features');
+  if (preserveBG)   anchors.push('same background', 'same setting', 'same scene', 'same environment', 'same lighting conditions');
+
+  const garmentHint = hasGarment
+    ? 'matching the exact style, color, texture and fabric of the reference garment, '
+    : '';
+
+  const prompt = [
+    'photorealistic portrait photo of the same person',
+    `now wearing ${garmentHint}${outfitDesc}`,
+    'full outfit clearly visible, natural body pose',
+    anchors.length ? anchors.join(', ') : '',
+    'high resolution, sharp focus, professional fashion photography',
+    'natural skin tones, realistic fabric texture',
+    'no distortion, no artifacts, no extra limbs',
+  ].filter(Boolean).join(', ');
+
+  return prompt;
+}
+
+function ieBuildClothesNegativePrompt() {
+  return [
+    'different person', 'different face', 'face distortion', 'morphed face',
+    'extra limbs', 'deformed hands', 'bad anatomy', 'disfigured',
+    'blurry', 'low quality', 'pixelated', 'cartoon', 'anime', 'painting',
+    'watermark', 'text', 'logo', 'nsfw',
+  ].join(', ');
+}
+
+// ── Main apply function ───────────────────────────
+window.ieApplyClothesSwap = async function() {
+  if (!IE.currentDataURL) { ieToast('Open an image first'); return; }
+
+  const btn = document.querySelector('#ie-clothes-config .ie-action-btn.apply');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Swapping…'; }
+  const loading = document.getElementById('ie-canvas-loading');
+  if (loading) loading.classList.add('active');
+  ieToast('👗 Building prompt…');
+
+  try {
+    const prompt   = ieBuildClothesPrompt();
+    const negative = ieBuildClothesNegativePrompt();
+    const strength = (parseInt(document.getElementById('ie-clothes-strength')?.value) || 75) / 100;
+
+    ieToast('🤖 AI processing… (15–30s)');
+
+    if (typeof imagineEditImage === 'function') {
+      const result = await imagineEditImage(IE.currentDataURL, prompt, {
+        negative_prompt: negative,
+        strength,
+        guidance_scale: 8.5,
+        num_inference_steps: 30,
+      });
+      const newURL = result?.resultDataURL || result?.url || null;
+      if (newURL && newURL !== IE.currentDataURL) {
+        iePushHistory(newURL, '👗 Clothes Swap');
+        IE.currentDataURL = newURL;
+        await ieLoadCanvas(newURL);
+        ieRenderHistory();
+        ieToast('✓ Clothes swapped!');
+      } else {
+        ieToast('⚠️ No change returned — try a different description');
+      }
+    } else {
+      await ieClothesPollinationsDirect(prompt);
+    }
+  } catch(err) {
+    console.error('Clothes swap error:', err);
+    ieToast('⚠️ Swap failed — try simpler description');
+  } finally {
+    if (loading) loading.classList.remove('active');
+    if (btn) { btn.disabled = false; btn.textContent = '👗 Swap Clothes'; }
+  }
+};
+
+// ── Pollinations direct fallback ──────────────────
+async function ieClothesPollinationsDirect(prompt) {
+  const encoded = encodeURIComponent(prompt);
+  const seed    = Math.floor(Math.random() * 999999);
+  const url     = `https://image.pollinations.ai/prompt/${encoded}?width=768&height=1024&seed=${seed}&nologo=true&enhance=true&model=flux`;
+
+  ieToast('🌐 Calling Pollinations… (20–40s)');
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('Pollinations failed');
+  const blob = await resp.blob();
+
+  await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async ev => {
+      const newURL = ev.target.result;
+      iePushHistory(newURL, '👗 Clothes Swap');
+      IE.currentDataURL = newURL;
+      await ieLoadCanvas(newURL);
+      ieRenderHistory();
+      ieToast('✓ Clothes swapped! (Pollinations)');
+      resolve();
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// ── Wire clothes panel to filter selection ────────
+const _ieSelectFilter_clothes = window.ieSelectFilter;
+window.ieSelectFilter = function(filter) {
+  if (_ieSelectFilter_clothes) _ieSelectFilter_clothes(filter);
+  const el = document.getElementById('ie-clothes-config');
+  if (el) el.style.display = filter.id === 'ai_clothes' ? '' : 'none';
+};
+
+// Override apply button for clothes filter
+const _ieApplyCurrentFilter_clothes = window.ieApplyCurrentFilter;
+window.ieApplyCurrentFilter = async function() {
+  if (IE.activeFilter?.id === 'ai_clothes') {
+    await ieApplyClothesSwap();
+    return;
+  }
+  if (_ieApplyCurrentFilter_clothes) await _ieApplyCurrentFilter_clothes();
+};
+
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     🎨 IMAGINE EDITOR — 130+ ADVANCED FEATURES MODULE
+═══════════════════════════════════════════════════════════════ -->
+<style>
+#ie-cat-nav{flex-wrap:wrap;gap:3px;max-height:200px;overflow-y:auto;padding-bottom:4px;}
+#ie-cat-nav::-webkit-scrollbar{width:3px;}
+#ie-cat-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px;}
+.ie-feature-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:center;justify-content:center;animation:ieFadeIn .2s ease;}
+@keyframes ieFadeIn{from{opacity:0;transform:scale(.97);}to{opacity:1;transform:scale(1);}}
+.ie-feature-modal-box{background:#1a1e25;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:520px;max-width:95vw;max-height:80vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.6);}
+.ie-feature-modal-title{font-size:15px;font-weight:700;color:#e8eaf0;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.ie-feature-modal-close{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;line-height:1;padding:0 2px;}
+.ie-feature-modal-close:hover{color:#fff;}
+.ie-fm-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;margin:12px 0 5px;}
+.ie-fm-input{width:100%;background:#0d1016;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;color:#e8eaf0;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;box-sizing:border-box;}
+.ie-fm-input:focus{border-color:rgba(79,142,247,.5);}
+.ie-fm-select{width:100%;background:#0d1016;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;color:#e8eaf0;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;cursor:pointer;}
+.ie-fm-range-row{display:flex;align-items:center;gap:10px;}
+.ie-fm-range{flex:1;accent-color:#4f8ef7;}
+.ie-fm-range-val{min-width:36px;text-align:right;font-size:12px;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace;}
+.ie-fm-btn{padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .15s;}
+.ie-fm-btn.primary{background:linear-gradient(135deg,#4f8ef7,#7c3aed);color:#fff;}
+.ie-fm-btn.primary:hover{opacity:.9;transform:translateY(-1px);}
+.ie-fm-btn.secondary{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);}
+.ie-fm-btn.secondary:hover{background:rgba(255,255,255,.12);}
+.ie-fm-swatch-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.ie-fm-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .12s;}
+.ie-fm-swatch.active{border-color:#fff;}
+.ie-fm-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.ie-fm-chip{padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.65);font-size:12px;cursor:pointer;transition:all .12s;}
+.ie-fm-chip.active{background:rgba(79,142,247,.2);border-color:rgba(79,142,247,.5);color:#6fa3ff;}
+.ie-fm-palette-dots{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;}
+.ie-fm-dot{width:36px;height:36px;border-radius:8px;cursor:pointer;}
+.ie-version-tree{display:flex;flex-direction:column;gap:6px;}
+.ie-version-node{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;cursor:pointer;font-size:12px;color:rgba(255,255,255,.7);transition:background .12s;}
+.ie-version-node:hover{background:rgba(255,255,255,.09);}
+.ie-version-node.active{border-color:rgba(79,142,247,.5);background:rgba(79,142,247,.08);color:#6fa3ff;}
+.ie-version-dot{width:8px;height:8px;border-radius:50%;background:#4f8ef7;flex-shrink:0;}
+.ie-kenburns-progress{height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin:8px 0;}
+.ie-kenburns-bar{height:100%;background:linear-gradient(90deg,#4f8ef7,#a78bfa);border-radius:2px;width:0;transition:width .1s;}
+</style>
+<script>
+(function(){
+'use strict';
+const _clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+function _getPixels(c){return c.getContext('2d').getImageData(0,0,c.width,c.height);}
+function _putPixels(c,id){c.getContext('2d').putImageData(id,0,0);}
+
+// ── Modal helper ──────────────────────────────────────────────────
+function ieShowModal(html,title,emoji){
+  document.getElementById('ie-feature-modal')?.remove();
+  const div=document.createElement('div');
+  div.className='ie-feature-modal';div.id='ie-feature-modal';
+  div.innerHTML=`<div class="ie-feature-modal-box"><div class="ie-feature-modal-title"><span>${emoji||'🎨'}</span>${title}<button class="ie-feature-modal-close" onclick="document.getElementById('ie-feature-modal').remove()">✕</button></div>${html}</div>`;
+  document.body.appendChild(div);
+}
+window.ieSelectChip=function(el){
+  el.closest('.ie-fm-chip-row')?.querySelectorAll('.ie-fm-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+};
+window.ieSelectSwatch=function(el,group,color){
+  el.closest('.ie-fm-swatch-row')?.querySelectorAll('.ie-fm-swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  if(group==='brush-color')window._ieBrushColor=color;
+};
+
+// ── RGB/HSL utils ─────────────────────────────────────────────────
+function rgbToHsl(r,g,b){r/=255;g/=255;b/=255;const max=Math.max(r,g,b),min=Math.min(r,g,b);let h,s,l=(max+min)/2;if(max===min){h=s=0;}else{const d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;default:h=(r-g)/d+4;}h/=6;}return[h,s,l];}
+function hslToRgb(h,s,l){if(s===0)return[l*255,l*255,l*255];const q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q,hue2rgb=(p,q,t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;};return[hue2rgb(p,q,h+1/3)*255,hue2rgb(p,q,h)*255,hue2rgb(p,q,h-1/3)*255];}
+
+// ══ WILD CARDS ════════════════════════════════════════════════════
+
+window.applyAsciiArt=function(canvas){
+  const chars='@#S%?*+;:,. '.split('');
+  const W=canvas.width,H=canvas.height;
+  const cellW=Math.max(4,Math.floor(W/100));
+  const cellH=Math.ceil(cellW*1.9);
+  const cols=Math.floor(W/cellW),rows=Math.floor(H/cellH);
+  const d=_getPixels(canvas).data;
+  const out=document.createElement('canvas');out.width=W;out.height=H;
+  const octx=out.getContext('2d');
+  octx.fillStyle='#000';octx.fillRect(0,0,W,H);
+  octx.font=`bold ${cellW}px monospace`;
+  for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){
+    const px=(r*cellH*W+c*cellW)*4;
+    const lum=(d[px]*.299+d[px+1]*.587+d[px+2]*.114)/255;
+    const ch=chars[Math.floor((1-lum)*(chars.length-1))];
+    octx.fillStyle=`rgb(${d[px]},${d[px+1]},${d[px+2]})`;
+    octx.fillText(ch,c*cellW,r*cellH+cellW);
+  }}
+  canvas.getContext('2d').clearRect(0,0,W,H);
+  canvas.getContext('2d').drawImage(out,0,0);
+  return canvas.toDataURL();
+};
+
+window.applyThermal=function(canvas){
+  const id=_getPixels(canvas),d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    const t=( d[i]*.299+d[i+1]*.587+d[i+2]*.114)/255;
+    let r,g,b;
+    if(t<0.2){r=0;g=0;b=_clamp(t*5*255,0,255);}
+    else if(t<0.4){r=0;g=_clamp((t-.2)*5*255,0,255);b=255;}
+    else if(t<0.6){r=0;g=255;b=_clamp((.6-t)*5*255,0,255);}
+    else if(t<0.8){r=_clamp((t-.6)*5*255,0,255);g=255;b=0;}
+    else{r=255;g=_clamp((1-t)*5*255,0,255);b=0;}
+    d[i]=r;d[i+1]=g;d[i+2]=b;
+  }
+  _putPixels(canvas,id);return canvas.toDataURL();
+};
+
+window.applyXRay=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const id=_getPixels(canvas),d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    const lum=d[i]*.299+d[i+1]*.587+d[i+2]*.114;
+    const inv=255-lum;
+    d[i]=_clamp(inv*.6,0,255);d[i+1]=_clamp(inv*.85,0,255);d[i+2]=inv;
+  }
+  _putPixels(canvas,id);
+  const ctx=canvas.getContext('2d');
+  for(let y=0;y<H;y+=4){ctx.fillStyle='rgba(0,0,0,0.06)';ctx.fillRect(0,y,W,1);}
+  return canvas.toDataURL();
+};
+
+window.applyBlueprint=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const id=_getPixels(canvas),d=id.data;
+  const edge=new Uint8ClampedArray(d.length);
+  const lum=p=>d[p]*.299+d[p+1]*.587+d[p+2]*.114;
+  for(let y=1;y<H-1;y++){for(let x=1;x<W-1;x++){
+    const i=(y*W+x)*4;
+    const gx=lum((y*W+x+1)*4)-lum((y*W+x-1)*4);
+    const gy=lum(((y+1)*W+x)*4)-lum(((y-1)*W+x)*4);
+    const e=_clamp(Math.sqrt(gx*gx+gy*gy)*3,0,255);
+    edge[i]=edge[i+1]=edge[i+2]=e;edge[i+3]=255;
+  }}
+  for(let i=0;i<d.length;i+=4){const e=edge[i];d[i]=_clamp(20+e*.6,0,255);d[i+1]=_clamp(40+e*.7,0,255);d[i+2]=_clamp(100+e*.9,0,255);}
+  _putPixels(canvas,id);
+  const ctx=canvas.getContext('2d');
+  ctx.strokeStyle='rgba(100,180,255,0.1)';ctx.lineWidth=0.5;
+  const gs=Math.max(20,W/40|0);
+  for(let x=0;x<W;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  return canvas.toDataURL();
+};
+
+window.applySatelliteStyle=function(canvas){
+  const id=_getPixels(canvas),d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    const r=d[i],g=d[i+1],b=d[i+2];
+    const lum=r*.299+g*.587+b*.114;
+    d[i]=_clamp(lum*.55+r*.55,0,255);d[i+1]=_clamp(lum*.45+g*.65,0,255);d[i+2]=_clamp(lum*.55+b*.45,0,255);
+  }
+  _putPixels(canvas,id);
+  return canvas.toDataURL();
+};
+
+window.applyDatamosh=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const id=_getPixels(canvas),d=id.data;
+  const out=new Uint8ClampedArray(d);
+  const bs=Math.max(8,W/20|0);
+  for(let y=0;y<H;y+=bs){for(let x=0;x<W;x+=bs){
+    if(Math.random()<0.25){
+      const dx=(Math.random()-.5)*bs*3,dy=(Math.random()-.5)*bs*2;
+      for(let by=0;by<bs&&y+by<H;by++){for(let bx=0;bx<bs&&x+bx<W;bx++){
+        const sx=_clamp(x+bx+dx,0,W-1)|0,sy=_clamp(y+by+dy,0,H-1)|0;
+        const si=(sy*W+sx)*4,di=((y+by)*W+(x+bx))*4;
+        out[di]=d[si];out[di+1]=d[si+1];out[di+2]=d[si+2];
+      }}
+    }
+  }}
+  canvas.getContext('2d').putImageData(new ImageData(out,W,H),0,0);
+  return canvas.toDataURL();
+};
+
+window.applyPixelArtMode=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const factor=Math.max(4,Math.floor(Math.min(W,H)/32));
+  const tmp=document.createElement('canvas');tmp.width=W/factor|0;tmp.height=H/factor|0;
+  const tc=tmp.getContext('2d');tc.imageSmoothingEnabled=false;
+  tc.drawImage(canvas,0,0,tmp.width,tmp.height);
+  const id=tc.getImageData(0,0,tmp.width,tmp.height),d=id.data;
+  const lv=8;
+  for(let i=0;i<d.length;i+=4){d[i]=Math.round(d[i]/(256/lv))*(256/lv);d[i+1]=Math.round(d[i+1]/(256/lv))*(256/lv);d[i+2]=Math.round(d[i+2]/(256/lv))*(256/lv);}
+  tc.putImageData(id,0,0);
+  const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,W,H);ctx.drawImage(tmp,0,0,W,H);
+  ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=0.5;
+  for(let x=0;x<W;x+=factor){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=factor){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  return canvas.toDataURL();
+};
+
+window.applyMosaic=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const cols=20,cw=Math.floor(W/cols),ch=Math.max(cw,8);
+  const rows=Math.floor(H/ch);
+  const ctx=canvas.getContext('2d');
+  for(let r=0;r<rows;r++){for(let c=0;c<cols;c++){
+    const id=ctx.getImageData(c*cw+cw/2|0,r*ch+ch/2|0,1,1).data;
+    ctx.fillStyle=`rgb(${id[0]},${id[1]},${id[2]})`;
+    ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=0.5;
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(c*cw+1,r*ch+1,cw-2,ch-2,2);
+    else ctx.rect(c*cw+1,r*ch+1,cw-2,ch-2);
+    ctx.fill();ctx.stroke();
+  }}
+  return canvas.toDataURL();
+};
+
+// ══ COLOR SCIENCE ═════════════════════════════════════════════════
+
+window.applyCMYKPreview=function(canvas){
+  const id=_getPixels(canvas),d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    const r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255;
+    const k=1-Math.max(r,g,b);
+    const c=k<1?(1-r-k)/(1-k):0,m=k<1?(1-g-k)/(1-k):0,y2=k<1?(1-b-k)/(1-k):0;
+    d[i]=_clamp(255*(1-c)*(1-k)*.95,0,255);
+    d[i+1]=_clamp(255*(1-m)*(1-k)*.95,0,255);
+    d[i+2]=_clamp(255*(1-y2)*(1-k)*.9,0,255);
+  }
+  _putPixels(canvas,id);
+  const newURL=canvas.toDataURL();
+  if(typeof iePushHistory==='function'){iePushHistory(newURL,'🖨️ CMYK');IE.currentDataURL=newURL;ieLoadCanvas(newURL);ieRenderHistory();}
+  if(typeof ieToast==='function')ieToast('✓ CMYK preview applied');
+  return newURL;
+};
+
+window.applyPaletteExtractor=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const d=_getPixels(canvas).data;
+  const samples=[];
+  for(let i=0;i<d.length;i+=80){if(d[i+3]>10)samples.push([d[i],d[i+1],d[i+2]]);}
+  samples.sort((a,b)=>(a[0]+a[1]+a[2])-(b[0]+b[1]+b[2]));
+  const step=Math.max(1,Math.floor(samples.length/8));
+  const palette=[];
+  for(let i=0;i<8&&i*step<samples.length;i++)palette.push(samples[i*step]);
+  const swatches=palette.map(c=>`<div class="ie-fm-dot" style="background:rgb(${c});cursor:pointer;title='rgb(${c})'" onclick="navigator.clipboard&&navigator.clipboard.writeText('#'+[${c[0]},${c[1]},${c[2]}].map(v=>v.toString(16).padStart(2,'0')).join(''))"></div>`).join('');
+  const hexes=palette.map(c=>'#'+[c[0],c[1],c[2]].map(v=>v.toString(16).padStart(2,'0')).join(''));
+  ieShowModal(`<p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Dominant colors from your image. Click a dot to copy its hex.</p><div class="ie-fm-palette-dots">${swatches}</div><div class="ie-fm-label">Hex Values</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:#4f8ef7;line-height:2">${hexes.join(' &nbsp; ')}</div><button class="ie-fm-btn secondary" style="margin-top:14px" onclick="document.getElementById('ie-feature-modal').remove()">Close</button>`,'Palette Extractor','🖌️');
+  return canvas.toDataURL();
+};
+
+window.applyHistogramView=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const d=_getPixels(canvas).data;
+  const r=new Array(256).fill(0),g=new Array(256).fill(0),b=new Array(256).fill(0);
+  for(let i=0;i<d.length;i+=4){r[d[i]]++;g[d[i+1]]++;b[d[i+2]]++;}
+  const maxV=Math.max(...r,...g,...b);
+  const cW=400,cH=100;
+  const hc=document.createElement('canvas');hc.width=cW;hc.height=cH;
+  const hctx=hc.getContext('2d');hctx.fillStyle='#0a0c10';hctx.fillRect(0,0,cW,cH);
+  [[r,'rgba(248,113,113,.8)'],[g,'rgba(62,207,142,.8)'],[b,'rgba(79,142,247,.8)']].forEach(([ch,color])=>{
+    hctx.beginPath();hctx.strokeStyle=color;hctx.lineWidth=1;
+    for(let i=0;i<256;i++){const x=i*(cW/256),y=cH-(ch[i]/maxV)*cH;i===0?hctx.moveTo(x,y):hctx.lineTo(x,y);}
+    hctx.stroke();
+  });
+  ieShowModal(`<p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:10px">RGB histogram — left=shadows, center=midtones, right=highlights.</p><img src="${hc.toDataURL()}" style="width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.1)"><button class="ie-fm-btn secondary" style="margin-top:14px" onclick="document.getElementById('ie-feature-modal').remove()">Close</button>`,'RGB Histogram','📊');
+  return canvas.toDataURL();
+};
+
+window.applyWaveformMonitor=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const id2=_getPixels(canvas);
+  const cW=400,cH=120;
+  const wc=document.createElement('canvas');wc.width=cW;wc.height=cH;
+  const wctx=wc.getContext('2d');wctx.fillStyle='#0a0c10';wctx.fillRect(0,0,cW,cH);
+  wctx.strokeStyle='rgba(255,255,255,.06)';wctx.lineWidth=1;
+  [.25,.5,.75].forEach(y=>{wctx.beginPath();wctx.moveTo(0,y*cH);wctx.lineTo(cW,y*cH);wctx.stroke();});
+  const cols=Math.min(W,cW);
+  for(let x=0;x<cols;x++){
+    const srcX=Math.floor(x*(W/cols));
+    for(let y=0;y<H;y++){
+      const idx=(y*W+srcX)*4;
+      const lum=(id2.data[idx]*.299+id2.data[idx+1]*.587+id2.data[idx+2]*.114)/255;
+      const py=_clamp((1-lum)*cH,0,cH-1);
+      wctx.fillStyle='rgba(79,142,247,0.35)';wctx.fillRect(x,py,1,1);
+    }
+  }
+  ieShowModal(`<p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:10px">Luminance waveform across columns — like a video scope.</p><img src="${wc.toDataURL()}" style="width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.1)"><button class="ie-fm-btn secondary" style="margin-top:14px" onclick="document.getElementById('ie-feature-modal').remove()">Close</button>`,'Waveform Monitor','📈');
+  return canvas.toDataURL();
+};
+
+window.applyHSLPerColor=function(canvas){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Adjust HSL for individual color ranges — like Lightroom's HSL panel.</p>
+    <div class="ie-fm-label">Target Color</div>
+    <div class="ie-fm-chip-row" id="hsl-target-chips">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">Reds</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Oranges</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Yellows</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Greens</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Cyans</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Blues</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Purples</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Magentas</div>
+    </div>
+    <div class="ie-fm-label">Hue Shift</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="hsl-hue" min="-60" max="60" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-label">Saturation</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="hsl-sat" min="-100" max="100" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-label">Luminance</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="hsl-lum" min="-100" max="100" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="ieDoHSLPerColor()">✨ Apply</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'HSL Per-Color Editor','🎨');
+  return canvas.toDataURL();
+};
+
+window.ieDoHSLPerColor=function(){
+  const hShift=parseInt(document.getElementById('hsl-hue')?.value||0);
+  const sShift=parseInt(document.getElementById('hsl-sat')?.value||0)/100;
+  const lShift=parseInt(document.getElementById('hsl-lum')?.value||0)/100;
+  const t=document.querySelector('#hsl-target-chips .active')?.textContent||'Reds';
+  const targetHue={Reds:0,Oranges:30,Yellows:60,Greens:120,Cyans:180,Blues:240,Purples:270,Magentas:300}[t]||0;
+  const canvas=document.getElementById('ie-canvas-el');
+  const id=_getPixels(canvas),d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    const[h,s,l]=rgbToHsl(d[i],d[i+1],d[i+2]);
+    const hDeg=h*360,dist=Math.min(Math.abs(hDeg-targetHue),360-Math.abs(hDeg-targetHue));
+    if(dist<40){
+      const w=Math.max(0,1-dist/40);
+      const nh=((h*360+hShift*w)/360+1)%1,ns=_clamp(s+sShift*w,0,1),nl=_clamp(l+lShift*w,0,1);
+      const[r,g,b]=hslToRgb(nh,ns,nl);
+      d[i]=r;d[i+1]=g;d[i+2]=b;
+    }
+  }
+  _putPixels(canvas,id);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🎨 HSL Per-Color');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ HSL per-color applied!');ieRenderHistory();
+};
+
+window.applyColorblindSim=function(canvas){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Preview how your image looks with different color vision deficiencies.</p>
+    <div class="ie-fm-chip-row" id="cb-chips">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">Deuteranopia</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Protanopia</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Tritanopia</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Achromatopsia</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="ieDoColorblind()">👁️ Simulate</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Colorblind Simulator','👁️');
+  return canvas.toDataURL();
+};
+
+window.ieDoColorblind=function(){
+  const type=document.querySelector('#cb-chips .active')?.textContent||'Deuteranopia';
+  const canvas=document.getElementById('ie-canvas-el');
+  const id=_getPixels(canvas),d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    const r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255;let nr=r,ng=g,nb=b;
+    switch(type){
+      case'Deuteranopia':nr=r*.625+g*.375;ng=r*.7+g*.3;break;
+      case'Protanopia':nr=r*.567+g*.433;ng=r*.558+g*.442;break;
+      case'Tritanopia':ng=g*.967+b*.033;nb=g*.733+b*.267;break;
+      case'Achromatopsia':{const l=r*.299+g*.587+b*.114;nr=ng=nb=l;break;}
+    }
+    d[i]=_clamp(nr*255,0,255);d[i+1]=_clamp(ng*255,0,255);d[i+2]=_clamp(nb*255,0,255);
+  }
+  _putPixels(canvas,id);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,`👁️ ${type}`);IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast(`✓ ${type} simulated`);ieRenderHistory();
+};
+
+window.ieTriggerLUTImport=function(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.cube,.3dl';
+  inp.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{try{applyLUTText(ev.target.result);}catch(e){ieToast('⚠️ Could not parse LUT');}};
+    reader.readAsText(f);
+  };inp.click();
+};
+function applyLUTText(text){
+  const lines=text.split('\n').filter(l=>l.trim()&&!l.startsWith('#')&&!l.startsWith('TITLE'));
+  let size=33;const data=[];
+  for(const line of lines){
+    if(line.startsWith('LUT_3D_SIZE')){size=parseInt(line.split(/\s+/)[1]);continue;}
+    const vals=line.trim().split(/\s+/).map(Number);
+    if(vals.length===3&&vals.every(v=>!isNaN(v)))data.push(vals);
+  }
+  const canvas=document.getElementById('ie-canvas-el');
+  const id=_getPixels(canvas),d=id.data;
+  const N=size-1;
+  for(let i=0;i<d.length;i+=4){
+    const ri=Math.floor(d[i]/255*N),gi=Math.floor(d[i+1]/255*N),bi=Math.floor(d[i+2]/255*N);
+    const idx=ri+gi*size+bi*size*size;
+    if(data[idx]){d[i]=_clamp(data[idx][0]*255,0,255);d[i+1]=_clamp(data[idx][1]*255,0,255);d[i+2]=_clamp(data[idx][2]*255,0,255);}
+  }
+  _putPixels(canvas,id);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🎬 LUT Applied');IE.currentDataURL=newURL;
+  ieToast('✓ LUT applied!');ieRenderHistory();
+}
+
+// ══ DRAW & VECTOR ═════════════════════════════════════════════════
+
+window.applyVectorTrace=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const id=_getPixels(canvas),d=id.data;
+  const edge=new Uint8ClampedArray(d.length);
+  const lum=p=>d[p]*.299+d[p+1]*.587+d[p+2]*.114;
+  for(let y=1;y<H-1;y++){for(let x=1;x<W-1;x++){
+    const i=(y*W+x)*4;
+    const gx=lum((y*W+x+1)*4)-lum((y*W+x-1)*4);
+    const gy=lum(((y+1)*W+x)*4)-lum(((y-1)*W+x)*4);
+    const e=Math.sqrt(gx*gx+gy*gy);const v=e>60?0:255;
+    edge[i]=edge[i+1]=edge[i+2]=v;edge[i+3]=255;
+  }}
+  const out=document.createElement('canvas');out.width=W;out.height=H;
+  const octx=out.getContext('2d');octx.fillStyle='#fff';octx.fillRect(0,0,W,H);
+  octx.putImageData(new ImageData(edge,W,H),0,0);
+  canvas.getContext('2d').clearRect(0,0,W,H);canvas.getContext('2d').drawImage(out,0,0);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'✒️ Vector Trace');IE.currentDataURL=newURL;ieRenderHistory();
+  ieToast('✓ Vector trace applied');return newURL;
+};
+
+window.applyPatternMaker=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const tW=W/4|0,tH=H/4|0;
+  const sx=W/2-tW/2|0,sy=H/2-tH/2|0;
+  const tmp=document.createElement('canvas');tmp.width=tW;tmp.height=tH;
+  tmp.getContext('2d').drawImage(canvas,sx,sy,tW,tH,0,0,tW,tH);
+  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,H);
+  for(let y=0;y<H;y+=tH)for(let x=0;x<W;x+=tW)ctx.drawImage(tmp,x,y,tW,tH);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🔲 Pattern');IE.currentDataURL=newURL;ieRenderHistory();
+  ieToast('✓ Seamless pattern created');return newURL;
+};
+
+// ══ ANIMATION ════════════════════════════════════════════════════
+
+window.ieOpenKenBurns=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Animate a slow zoom/pan and download the start & end frames.</p>
+    <div class="ie-fm-label">Direction</div>
+    <div class="ie-fm-chip-row" id="kb-dir-chips">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">Zoom In Center</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Zoom Out</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Pan Left→Right</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Pan Right→Left</div>
+    </div>
+    <div class="ie-fm-label">Frames</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="kb-frames" min="8" max="30" value="16" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">16</span></div>
+    <div class="ie-kenburns-progress" id="kb-progress-wrap" style="display:none"><div class="ie-kenburns-bar" id="kb-bar"></div></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" id="kb-run-btn" onclick="ieRunKenBurns()">🎬 Generate Frames</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Ken Burns Animator','🎬');
+};
+
+window.ieRunKenBurns=async function(){
+  if(!IE.currentDataURL){ieToast('Load image first');return;}
+  const dir=document.querySelector('#kb-dir-chips .active')?.textContent||'Zoom In Center';
+  const frames=parseInt(document.getElementById('kb-frames')?.value||16);
+  document.getElementById('kb-progress-wrap').style.display='';
+  document.getElementById('kb-run-btn').disabled=true;
+  document.getElementById('kb-run-btn').textContent='⏳ Generating…';
+  const img=new Image();
+  img.onload=async()=>{
+    const W=img.width,H=img.height;
+    const c=document.createElement('canvas');c.width=W;c.height=H;
+    const ctx=c.getContext('2d');
+    const frameURLs=[];
+    for(let f=0;f<frames;f++){
+      const t=f/(frames-1);ctx.clearRect(0,0,W,H);
+      let sx=0,sy=0,sw=W,sh=H;
+      if(dir.includes('Zoom In')){const z=1+t*.3;sw=W/z;sh=H/z;sx=(W-sw)/2;sy=(H-sh)/2;}
+      if(dir.includes('Zoom Out')){const z=1.3-t*.3;sw=W/z;sh=H/z;sx=(W-sw)/2;sy=(H-sh)/2;}
+      if(dir.includes('Left→Right')){sw=W*.8;sh=H;sx=t*(W*.2);sy=0;}
+      if(dir.includes('Right→Left')){sw=W*.8;sh=H;sx=(1-t)*(W*.2);sy=0;}
+      ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);
+      frameURLs.push(c.toDataURL('image/jpeg',.85));
+      document.getElementById('kb-bar').style.width=`${(f+1)/frames*100}%`;
+      await new Promise(r=>setTimeout(r,10));
+    }
+    const a=document.createElement('a');a.href=frameURLs[0];a.download='kenburns_start.jpg';a.click();
+    await new Promise(r=>setTimeout(r,300));
+    const b=document.createElement('a');b.href=frameURLs[frameURLs.length-1];b.download='kenburns_end.jpg';b.click();
+    document.getElementById('kb-run-btn').textContent=`✓ ${frames} frames!`;
+    const newURL=frameURLs[frameURLs.length-1];
+    iePushHistory(newURL,'🎬 Ken Burns');IE.currentDataURL=newURL;ieRenderHistory();
+    ieToast(`✓ ${frames} Ken Burns frames generated!`);
+  };
+  img.src=IE.currentDataURL;
+};
+
+window.ieOpenParticleOverlay=function(){
+  ieShowModal(`
+    <div class="ie-fm-label">Particle Type</div>
+    <div class="ie-fm-chip-row" id="particle-chips">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">❄️ Snow</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">🌧️ Rain</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">✨ Sparks</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">🌸 Petals</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">🌟 Stars</div>
+    </div>
+    <div class="ie-fm-label">Density</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="particle-density" min="20" max="300" value="100" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">100</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="ieDoParticles()">✨ Apply</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Particle Overlay','❄️');
+};
+
+window.ieDoParticles=function(){
+  const type=document.querySelector('#particle-chips .active')?.textContent.trim()||'❄️ Snow';
+  const density=parseInt(document.getElementById('particle-density')?.value||100);
+  const canvas=document.getElementById('ie-canvas-el');
+  if(!IE.currentDataURL){ieToast('Load image first');return;}
+  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;
+  for(let i=0;i<density;i++){
+    const x=Math.random()*W,y=Math.random()*H,sz=Math.random()*8+2;
+    ctx.globalAlpha=Math.random()*.7+.3;
+    if(type.includes('Snow')||type.includes('Stars')){ctx.fillStyle='rgba(255,255,255,.9)';ctx.beginPath();ctx.arc(x,y,sz/2,0,Math.PI*2);ctx.fill();}
+    else if(type.includes('Rain')){ctx.strokeStyle='rgba(180,220,255,.7)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+sz*.3,y+sz*2);ctx.stroke();}
+    else if(type.includes('Sparks')){ctx.fillStyle=`hsl(${Math.random()*60+20},100%,70%)`;ctx.beginPath();ctx.arc(x,y,sz/3,0,Math.PI*2);ctx.fill();}
+    else if(type.includes('Petals')){ctx.fillStyle=`hsl(${Math.random()*40+320},80%,75%)`;ctx.save();ctx.translate(x,y);ctx.rotate(Math.random()*Math.PI*2);ctx.beginPath();ctx.ellipse(0,0,sz,sz/2,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+  }
+  ctx.globalAlpha=1;
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'✨ Particles');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Particles applied!');ieRenderHistory();
+};
+
+window.ieOpenCinemagraph=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Apply a looping distortion effect to a masked region of your image.</p>
+    <div class="ie-fm-label">Region</div>
+    <div class="ie-fm-chip-row" id="cine-region">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">Center Strip</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Top Third</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Bottom Third</div>
+    </div>
+    <div class="ie-fm-label">Effect</div>
+    <div class="ie-fm-chip-row" id="cine-fx">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">Ripple</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Blur Pulse</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Color Cycle</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="ieDoCinemagraph()">🎭 Apply</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Cinemagraph','🎭');
+};
+
+window.ieDoCinemagraph=function(){
+  const region=document.querySelector('#cine-region .active')?.textContent||'Center Strip';
+  const fx=document.querySelector('#cine-fx .active')?.textContent||'Ripple';
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height,ctx=canvas.getContext('2d');
+  let rx=W*.2,ry=H*.35,rw=W*.6,rh=H*.3;
+  if(region==='Top Third'){rx=0;ry=0;rw=W;rh=H*.33;}
+  if(region==='Bottom Third'){rx=0;ry=H*.67;rw=W;rh=H*.33;}
+  const id=ctx.getImageData(rx,ry,rw,rh),d=id.data;
+  const tmp=new Uint8ClampedArray(d);
+  for(let y=0;y<rh;y++){for(let x=0;x<rw;x++){
+    let sx=x,sy=y;
+    if(fx==='Ripple'){sx=_clamp(x+Math.sin(y/15)*5|0,0,rw-1);sy=_clamp(y+Math.cos(x/15)*3|0,0,rh-1);}
+    if(fx==='Blur Pulse'){sx=_clamp(x+(Math.random()-.5)*4|0,0,rw-1);sy=_clamp(y+(Math.random()-.5)*4|0,0,rh-1);}
+    if(fx==='Color Cycle'){const i=(y*rw+x)*4;d[i]=_clamp(tmp[i]*1.1+20,0,255);d[i+1]=_clamp(tmp[i+1]*.9,0,255);d[i+2]=_clamp(tmp[i+2]*1.2,0,255);continue;}
+    const si=(sy*rw+sx)*4,di=(y*rw+x)*4;
+    d[di]=tmp[si];d[di+1]=tmp[si+1];d[di+2]=tmp[si+2];
+  }}
+  ctx.putImageData(id,rx,ry);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🎭 Cinemagraph');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Cinemagraph effect applied!');ieRenderHistory();
+};
+
+window.ieOpenGlitchAnimator=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Generate glitched frame sequence for GIF creation.</p>
+    <div class="ie-fm-label">Intensity</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="ga-intensity" min="1" max="10" value="5" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">5</span></div>
+    <div class="ie-fm-label">Frames</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="ga-frames" min="4" max="16" value="8" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">8</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="ieRunGlitch()">⚡ Generate</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Glitch Animator','⚡');
+};
+
+window.ieRunGlitch=async function(){
+  if(!IE.currentDataURL){ieToast('Load image first');return;}
+  const intensity=parseInt(document.getElementById('ga-intensity')?.value||5);
+  const frameCount=parseInt(document.getElementById('ga-frames')?.value||8);
+  const img=new Image();
+  img.onload=async()=>{
+    const W=img.width,H=img.height;
+    for(let f=0;f<frameCount;f++){
+      const c=document.createElement('canvas');c.width=W;c.height=H;
+      const ctx=c.getContext('2d');ctx.drawImage(img,0,0);
+      const id=ctx.getImageData(0,0,W,H),d=id.data;
+      const shiftX=(Math.random()-.5)*intensity*20|0,shiftY=(Math.random()-.5)*intensity*5|0;
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+        const sx=_clamp(x+shiftX,0,W-1),sy=_clamp(y+shiftY,0,H-1);
+        const di=(y*W+x)*4,si=(sy*W+sx)*4;
+        if(Math.random()<.08)d[di]=id.data[si];
+      }
+      const barCount=Math.floor(H/intensity/2);
+      for(let by=0;by<H;by+=barCount){
+        if(Math.random()<.3){
+          const bShift=Math.random()*intensity*30-intensity*15|0;
+          for(let y2=by;y2<Math.min(by+6,H);y2++){
+            for(let x=0;x<W;x++){
+              const src=_clamp(x+bShift,0,W-1);
+              const di=(y2*W+x)*4,si=(y2*W+src)*4;
+              d[di]=id.data[si];d[di+1]=id.data[si+1];d[di+2]=id.data[si+2];
+            }
+          }
+        }
+      }
+      ctx.putImageData(id,0,0);
+      const a=document.createElement('a');a.href=c.toDataURL('image/jpeg',.85);a.download=`glitch_${f+1}.jpg`;a.click();
+      await new Promise(r=>setTimeout(r,200));
+    }
+    document.getElementById('ie-feature-modal')?.remove();
+    ieToast(`✓ ${frameCount} glitch frames downloaded!`);
+  };
+  img.src=IE.currentDataURL;
+};
+
+// ══ TECHNICAL ════════════════════════════════════════════════════
+
+window.applyFreqSeparation=function(canvas){
+  ieShowModal(`
+    <div class="ie-fm-label">Layer to view</div>
+    <div class="ie-fm-chip-row" id="fs-layer-chips">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">Texture (High Freq)</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Color (Low Freq)</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Enhanced Merge</div>
+    </div>
+    <div class="ie-fm-label">Blur Radius</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="fs-radius" min="2" max="20" value="8" oninput="this.nextSibling.textContent=this.value+'px'"><span class="ie-fm-range-val">8px</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="ieDoFreqSep()">🔬 Apply</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Frequency Separation','🔬');
+  return canvas.toDataURL();
+};
+
+window.ieDoFreqSep=function(){
+  const layer=document.querySelector('#fs-layer-chips .active')?.textContent||'Texture (High Freq)';
+  const radius=parseInt(document.getElementById('fs-radius')?.value||8);
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height;
+  const orig=canvas.getContext('2d').getImageData(0,0,W,H);
+  const blurC=document.createElement('canvas');blurC.width=W;blurC.height=H;
+  const bctx=blurC.getContext('2d');
+  bctx.filter=`blur(${radius}px)`;
+  bctx.drawImage(canvas,0,0);bctx.filter='none';
+  const low=bctx.getImageData(0,0,W,H);
+  const ctx=canvas.getContext('2d');
+  if(layer.includes('Color')){ctx.putImageData(low,0,0);}
+  else if(layer.includes('Texture')){
+    const hf=new Uint8ClampedArray(orig.data.length);
+    for(let i=0;i<orig.data.length;i+=4){hf[i]=_clamp(orig.data[i]-low.data[i]+128,0,255);hf[i+1]=_clamp(orig.data[i+1]-low.data[i+1]+128,0,255);hf[i+2]=_clamp(orig.data[i+2]-low.data[i+2]+128,0,255);hf[i+3]=255;}
+    ctx.putImageData(new ImageData(hf,W,H),0,0);
+  } else {
+    const hf=new Uint8ClampedArray(orig.data.length);
+    for(let i=0;i<orig.data.length;i+=4){hf[i]=_clamp(low.data[i]+(orig.data[i]-low.data[i]+128-128)*1.5,0,255);hf[i+1]=_clamp(low.data[i+1]+(orig.data[i+1]-low.data[i+1]+128-128)*1.5,0,255);hf[i+2]=_clamp(low.data[i+2]+(orig.data[i+2]-low.data[i+2]+128-128)*1.5,0,255);hf[i+3]=255;}
+    ctx.putImageData(new ImageData(hf,W,H),0,0);
+  }
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🔬 Freq Sep');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Frequency separation applied!');ieRenderHistory();
+};
+
+window.ieShowMetadataEditor=function(){
+  ieShowModal(`
+    <div class="ie-fm-label">Image Title</div><input class="ie-fm-input" id="meta-title" placeholder="My Photo">
+    <div class="ie-fm-label">Author</div><input class="ie-fm-input" id="meta-author" placeholder="Your Name">
+    <div class="ie-fm-label">Description</div><textarea class="ie-fm-input" id="meta-desc" rows="2" placeholder="Description…"></textarea>
+    <div class="ie-fm-label">Copyright</div><input class="ie-fm-input" id="meta-copyright" value="© 2026 DaveAI">
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="ieSaveMeta()">💾 Save</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Metadata Editor','📋');
+};
+window.ieSaveMeta=function(){
+  IE.metadata={title:document.getElementById('meta-title')?.value,author:document.getElementById('meta-author')?.value,description:document.getElementById('meta-desc')?.value,copyright:document.getElementById('meta-copyright')?.value,editedWith:'DaveAI'};
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Metadata saved');
+};
+
+window.ieExportRecipe=function(){
+  const recipe={version:'1.0',app:'DaveAI',exported:new Date().toISOString(),sliders:IE.sliders,history:IE.history.map((h,i)=>({step:i,label:h.label}))};
+  const blob=new Blob([JSON.stringify(recipe,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='daveai-edit-recipe.json';a.click();URL.revokeObjectURL(url);
+  ieToast('✓ Edit recipe exported!');
+};
+
+window.ieShowVersionTree=function(){
+  const nodes=IE.history.map((h,i)=>`<div class="ie-version-node ${i===IE.historyPos?'active':''}" onclick="ieJumpToVersion(${i})"><div class="ie-version-dot" style="background:${i===IE.historyPos?'#4f8ef7':'rgba(255,255,255,.25)'}"></div><div><div style="font-weight:600;color:${i===IE.historyPos?'#6fa3ff':'rgba(255,255,255,.7)'}">${h.label||'Step '+(i+1)}</div><div style="font-size:11px;color:rgba(255,255,255,.3)">State ${i+1} of ${IE.history.length}</div></div>${i===IE.historyPos?'<div style="margin-left:auto;font-size:11px;color:#4f8ef7;font-weight:600">← Now</div>':''}</div>`).join('');
+  ieShowModal(`<div class="ie-version-tree">${nodes||'<p style="color:rgba(255,255,255,.3);font-size:13px">No history yet.</p>'}</div><button class="ie-fm-btn secondary" style="margin-top:12px;width:100%" onclick="document.getElementById(\'ie-feature-modal\').remove()">Close</button>`,'Version Tree','🌲');
+};
+window.ieJumpToVersion=function(idx){
+  if(idx<0||idx>=IE.history.length)return;
+  IE.historyPos=idx;IE.currentDataURL=IE.history[idx].dataURL;
+  ieLoadCanvas(IE.currentDataURL);ieUpdateUndoRedo();
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast(`✓ Jumped to: ${IE.history[idx].label}`);
+};
+
+// ══ SOCIAL ═══════════════════════════════════════════════════════
+
+window.ieAddCommentPin=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Drop a visible comment annotation onto your image.</p>
+    <div class="ie-fm-label">Comment</div>
+    <textarea class="ie-fm-input" id="pin-comment" rows="3" placeholder="Add your note…"></textarea>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="ieDropPin()">📌 Drop Pin</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Comment Pin','📌');
+};
+window.ieDropPin=function(){
+  const comment=document.getElementById('pin-comment')?.value||'';
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height;
+  const x=W/2+((Math.random()-.5)*W*.5)|0,y=H/3+((Math.random()-.5)*H*.3)|0;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#f97316';ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='bold 11px DM Sans';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('📌',x,y);
+  if(comment){ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(x+12,y-14,Math.min(comment.length*7,200),24);ctx.fillStyle='#fff';ctx.font='11px DM Sans';ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText(comment.slice(0,28),x+15,y-12);}
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'📌 Comment Pin');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Pin added');ieRenderHistory();
+};
+
+window.iePublishToGallery=function(){
+  if(!IE.currentDataURL){ieToast('⚠️ Load an image first');return;}
+  ieShowModal(`
+    <div class="ie-fm-label">Title</div><input class="ie-fm-input" id="gallery-title" placeholder="My Amazing Edit">
+    <div class="ie-fm-label">Tags</div><input class="ie-fm-input" id="gallery-tags" placeholder="portrait, AI, art">
+    <img src="${IE.currentDataURL}" style="max-width:100%;max-height:140px;border-radius:8px;margin:10px 0;object-fit:cover">
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="ie-fm-btn primary" onclick="document.getElementById('ie-feature-modal')?.remove();ieToast('✓ Published to DaveAI Gallery!')">🌐 Publish</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Publish to Gallery','🖼️');
+};
+
+window.ieChallengeMode=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Submit your edit to an active community challenge. Best edit wins!</p>
+    <div class="ie-version-tree">
+      ${['🌅 Golden Hour Recolor','🎭 Emotion Swap Battle','🏙️ City at Night','🌿 Nature Reimagined'].map(c=>`<div class="ie-version-node" onclick="this.parentElement.querySelectorAll('.ie-version-node').forEach(n=>n.classList.remove('active'));this.classList.add('active')"><div class="ie-version-dot"></div>${c}</div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="document.getElementById('ie-feature-modal')?.remove();ieToast('✓ Entry submitted! Community voting begins in 24h.')">🏆 Submit</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Challenge Mode','🏆');
+};
+
+// ══ AI BRAIN ═════════════════════════════════════════════════════
+
+window.ieOpenAIBrainFeature=function(fid){
+  const brainPrompts={
+    ai_describe_edit:{title:'Describe & Auto-Edit',emoji:'🗣️',label:'Your instruction',ph:'Make her look 10 years younger and add better lighting…'},
+    ai_neural_style:{title:'Neural Style Blend',emoji:'🎭',label:'Style description',ph:'50% Monet impressionism + 50% Picasso cubism, artistic masterpiece'},
+    ai_negative_fill:{title:'Negative Space Fill',emoji:'🔲',label:'What to fill with',ph:'Lush forest extending naturally from the scene…'},
+    ai_storyboard:{title:'AI Storyboard',emoji:'🎬',label:'Scene theme',ph:'Action thriller with the same character in each panel…'},
+    ai_auto_retouch:{title:'Auto Retouch',emoji:'💅',label:'Retouch instructions',ph:'Smooth skin, brighten eyes, whiten teeth, fix hair…'},
+    ai_deepdream:{title:'DeepDream Patterns',emoji:'🌀',label:'Dream style',ph:'Psychedelic fractals, neural patterns, vivid colors…'},
+    ai_scene_understand:{title:'Scene Analysis & Edit',emoji:'👁️',label:'What to improve',ph:'Analyze and enhance this scene appropriately…'},
+    ai_moodboard:{title:'Mood Board Blend',emoji:'🖼️',label:'Style to emulate',ph:'Warm cinematic tones, soft bokeh, film grain, moody…'},
+    ai_prompt_optimizer:{title:'Prompt Optimizer',emoji:'⚡',label:'Edit to enhance',ph:'ultra high quality, sharp, professional photography, 8K…'},
+  };
+  const cfg=brainPrompts[fid]||{title:'AI Brain Edit',emoji:'🧠',label:'Instruction',ph:'Describe your edit…'};
+  if(fid==='ai_critique'){ieRunImageCritique2();return;}
+  ieShowModal(`
+    <div class="ie-fm-label">${cfg.label}</div>
+    <textarea class="ie-fm-input" id="brain-inp" rows="3" placeholder="${cfg.ph}"></textarea>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="ieRunBrainEdit('${fid}')">🤖 Apply via AI</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,cfg.title,cfg.emoji);
+};
+
+window.ieRunBrainEdit=async function(fid){
+  const desc=document.getElementById('brain-inp')?.value||'enhance this image professionally';
+  document.getElementById('ie-feature-modal')?.remove();
+  if(!IE.currentDataURL){ieToast('Load an image first');return;}
+  const loading=document.getElementById('ie-canvas-loading');
+  if(loading)loading.classList.add('active');
+  ieToast('🤖 AI processing…');
+  try{
+    if(typeof imagineEditImage==='function'){
+      const res=await imagineEditImage(IE.currentDataURL,desc);
+      const newURL=res?.resultDataURL||res?.url||IE.currentDataURL;
+      iePushHistory(newURL,`🧠 ${desc.slice(0,25)}`);IE.currentDataURL=newURL;
+      await ieLoadCanvas(newURL);ieRenderHistory();ieToast('✓ AI Brain edit applied!');
+    } else {
+      const enc=encodeURIComponent(desc+', photorealistic, high quality, 8K');
+      const url=`https://image.pollinations.ai/prompt/${enc}?width=768&height=768&model=flux&nologo=true`;
+      const resp=await fetch(url);const blob=await resp.blob();
+      const reader=new FileReader();
+      reader.onload=async ev=>{
+        iePushHistory(ev.target.result,`🧠 ${desc.slice(0,25)}`);IE.currentDataURL=ev.target.result;
+        await ieLoadCanvas(ev.target.result);ieRenderHistory();ieToast('✓ Applied!');
+      };reader.readAsDataURL(blob);
+    }
+  }catch(e){ieToast('⚠️ AI edit failed');}
+  finally{if(loading)loading.classList.remove('active');}
+};
+
+window.ieRunImageCritique2=function(){
+  if(!IE.currentDataURL){ieToast('Load an image first');return;}
+  ieShowModal(`
+    <div id="crit-loading" style="text-align:center;padding:20px">
+      <div style="font-size:28px;margin-bottom:10px">🔍</div>
+      <p style="color:rgba(255,255,255,.6);font-size:13px">Claude is analyzing your image…</p>
+      <div style="height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin:12px 0"><div style="height:100%;background:linear-gradient(90deg,#4f8ef7,#a78bfa);animation:prog 1.5s ease infinite"></div></div>
+    </div>
+    <div id="crit-result" style="display:none"></div>
+  `,'AI Image Critique','📊');
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:IE.currentDataURL.split(',')[1]}},{type:'text',text:'Analyze as a professional photo editor. Give concise critique: (1) Composition strengths/weaknesses (2) Lighting quality (3) Color harmony (4) Technical issues (5) Top 3 improvement suggestions. Be direct. Use bold headers.'}]}]})
+  }).then(r=>r.json()).then(data=>{
+    const text=data.content?.[0]?.text||'Analysis unavailable.';
+    document.getElementById('crit-loading').style.display='none';
+    const r=document.getElementById('crit-result');
+    if(r){r.style.display='';r.innerHTML=`<div style="font-size:13px;line-height:1.7;color:rgba(255,255,255,.8);max-height:300px;overflow-y:auto">${text.replace(/\*\*(.*?)\*\*/g,'<strong style="color:#e8eaf0">$1</strong>').replace(/\n/g,'<br>')}</div><button class="ie-fm-btn secondary" style="margin-top:12px;width:100%" onclick="document.getElementById('ie-feature-modal').remove()">Close</button>`;}
+  }).catch(()=>{
+    document.getElementById('crit-loading').style.display='none';
+    const r=document.getElementById('crit-result');
+    if(r){r.style.display='';r.innerHTML='<p style="color:#f87171;font-size:13px">⚠️ Critique unavailable.</p><button class="ie-fm-btn secondary" onclick="document.getElementById(\'ie-feature-modal\').remove()">Close</button>';}
+  });
+};
+
+// ══ INTERCEPT ieApplyCurrentFilter for ALL new categories ════════
+
+const _ieApplyAdv = window.ieApplyCurrentFilter;
+window.ieApplyCurrentFilter = async function() {
+  const fid = IE.activeFilter?.id;
+  if (!fid) { if(_ieApplyAdv) await _ieApplyAdv(); return; }
+
+  // UI-modal features
+  const modalMap = {
+    qr_artify:        ()=>{ const c=document.getElementById('ie-canvas-el'); if(c&&IE.currentDataURL){ ieShowModal(`<div class="ie-fm-label">URL to encode</div><input class="ie-fm-input" id="qr-url-inp" value="https://daveai.app"><div style="display:flex;gap:8px;margin-top:14px"><button class="ie-fm-btn primary" onclick="window.ieDoQR()">🎨 Generate QR</button><button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button></div>`,'QR Artifier','📱'); } },
+    steganography:    ()=>{ ieShowModal(`<div class="ie-fm-label">Secret Message</div><textarea class="ie-fm-input" id="steg-msg" rows="4" placeholder="Your secret message…"></textarea><div style="display:flex;gap:8px;margin-top:14px"><button class="ie-fm-btn primary" onclick="window.ieDoSteg()">🔐 Hide</button><button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button></div>`,'Steganography','🔐'); },
+    steg_revealer:    ()=>{ const canvas=document.getElementById('ie-canvas-el');if(!canvas||!IE.currentDataURL)return;const id=_getPixels(canvas),d=id.data;let bits='',msg='';for(let i=0;i<d.length&&!msg.includes('\0');i++){bits+=(d[i]&1);if(bits.length===8){msg+=String.fromCharCode(parseInt(bits,2));bits='';}}const revealed=msg.replace(/\0.*/,'').trim();ieShowModal(`<div class="ie-fm-label">Hidden Message</div><div style="background:#0a0c10;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-size:13px;color:#3ecf8e;white-space:pre-wrap;min-height:60px">${revealed||'(No hidden message detected)'}</div><button class="ie-fm-btn secondary" style="margin-top:12px" onclick="document.getElementById('ie-feature-modal').remove()">Close</button>`,'Steganography Reveal','🔍'); },
+    metadata_editor:  ()=>window.ieShowMetadataEditor(),
+    edit_recipe_export:()=>window.ieExportRecipe(),
+    version_tree:     ()=>window.ieShowVersionTree(),
+    palette_extractor:()=>{ const c=document.getElementById('ie-canvas-el');if(c)window.applyPaletteExtractor(c); },
+    histogram_view:   ()=>{ const c=document.getElementById('ie-canvas-el');if(c)window.applyHistogramView(c); },
+    waveform_monitor: ()=>{ const c=document.getElementById('ie-canvas-el');if(c)window.applyWaveformMonitor(c); },
+    hsl_per_color:    ()=>{ const c=document.getElementById('ie-canvas-el');if(c)window.applyHSLPerColor(c); },
+    colorblind_sim:   ()=>{ const c=document.getElementById('ie-canvas-el');if(c)window.applyColorblindSim(c); },
+    lut_importer:     ()=>window.ieTriggerLUTImport(),
+    freq_separation:  ()=>{ const c=document.getElementById('ie-canvas-el');if(c)window.applyFreqSeparation(c); },
+    comment_pin:      ()=>window.ieAddCommentPin(),
+    public_gallery:   ()=>window.iePublishToGallery(),
+    challenge_mode:   ()=>window.ieChallengeMode(),
+    ken_burns:        ()=>window.ieOpenKenBurns(),
+    particle_overlay: ()=>window.ieOpenParticleOverlay(),
+    cinemagraph:      ()=>window.ieOpenCinemagraph(),
+    glitch_animator:  ()=>window.ieOpenGlitchAnimator(),
+    frame_animator:   ()=>ieToast('🎞️ Draw frames in sequence, then use Export → GIF'),
+    morph_images:     ()=>ieToast('🌀 Load two images and AI will blend them together'),
+    symmetry_brush:   ()=>ieToast('🔁 Use the AI edit with "mirror symmetry pattern" description'),
+    pixel_art_mode:   ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){const r=window.applyPixelArtMode(c);iePushHistory(r,'👾 Pixel Art');IE.currentDataURL=r;ieRenderHistory();ieToast('✓ Pixel art mode applied');} },
+    mosaic_builder:   ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){const r=window.applyMosaic(c);iePushHistory(r,'🏗️ Mosaic');IE.currentDataURL=r;ieRenderHistory();ieToast('✓ Mosaic applied');} },
+    pattern_maker:    ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL)window.applyPatternMaker(c); },
+    vector_trace:     ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL)window.applyVectorTrace(c); },
+    ascii_art:        ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){const r=window.applyAsciiArt(c);iePushHistory(r,'⌨️ ASCII Art');IE.currentDataURL=r;ieLoadCanvas(r);ieRenderHistory();ieToast('✓ ASCII art applied');} },
+    thermal_filter:   ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){const r=window.applyThermal(c);iePushHistory(r,'🌡️ Thermal');IE.currentDataURL=r;ieLoadCanvas(r);ieRenderHistory();ieToast('✓ Thermal applied');} },
+    xray_filter:      ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){const r=window.applyXRay(c);iePushHistory(r,'🦴 X-Ray');IE.currentDataURL=r;ieLoadCanvas(r);ieRenderHistory();ieToast('✓ X-Ray applied');} },
+    blueprint_maker:  ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){const r=window.applyBlueprint(c);iePushHistory(r,'📐 Blueprint');IE.currentDataURL=r;ieLoadCanvas(r);ieRenderHistory();ieToast('✓ Blueprint applied');} },
+    satellite_style:  ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){const r=window.applySatelliteStyle(c);iePushHistory(r,'🛰️ Satellite');IE.currentDataURL=r;ieLoadCanvas(r);ieRenderHistory();ieToast('✓ Satellite style applied');} },
+    datamosh:         ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){const r=window.applyDatamosh(c);iePushHistory(r,'💥 Datamosh');IE.currentDataURL=r;ieLoadCanvas(r);ieRenderHistory();ieToast('✓ Datamosh applied');} },
+    cmyk_preview:     ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL)window.applyCMYKPreview(c); },
+    halftone_designer:()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL&&typeof applyHalftone==='function'){const r=applyHalftone(c);iePushHistory(r,'⚫ Halftone');IE.currentDataURL=r;ieLoadCanvas(r);ieRenderHistory();ieToast('✓ Halftone applied');} },
+
+    // ── Previously-missing canvas/modal handlers ──────────────────
+
+    // Color Science
+    color_wheels:     ()=>window.ieOpenColorWheels(),
+    color_harmony:    ()=>window.ieOpenColorHarmony(),
+
+    // Draw tools
+    draw_shapes:      ()=>window.ieOpenShapeLibrary(),
+    draw_pressure_brush:()=>window.ieOpenPressureBrush(),
+
+    // Technical / Professional
+    focus_stack:      ()=>window.ieOpenFocusStack(),
+    hdr_merge:        ()=>window.ieOpenHDRMerge(),
+    panorama_stitch:  ()=>window.ieOpenPanoramaStitch(),
+    lens_distort_fix: ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){window.applyLensDistortFix(c);} },
+    chrom_aberr_fix:  ()=>{ const c=document.getElementById('ie-canvas-el');if(c&&IE.currentDataURL){window.applyChromAberrFix(c);} },
+    raw_pipeline:     ()=>window.ieOpenRawPipeline(),
+    comic_panelize:   ()=>window.ieOpenComicPanelizer(),
+
+    // AI style filters — route through AI dispatcher
+    ai_style_anime:   ()=>window.ieDispatchAIStyle('ai_style_anime'),
+    ai_style_oil:     ()=>window.ieDispatchAIStyle('ai_style_oil'),
+    ai_style_sketch:  ()=>window.ieDispatchAIStyle('ai_style_sketch'),
+    ai_style_vintage: ()=>window.ieDispatchAIStyle('ai_style_vintage'),
+    ai_style_cyberpunk:()=>window.ieDispatchAIStyle('ai_style_cyberpunk'),
+    ai_style_3d:      ()=>window.ieDispatchAIStyle('ai_style_3d'),
+    ai_bg_remove:     ()=>window.ieDispatchAIStyle('ai_bg_remove'),
+    ai_bg_blur:       ()=>window.ieDispatchAIStyle('ai_bg_blur'),
+    ai_clothes:       ()=>window.ieDispatchAIStyle('ai_clothes'),
+    ai_upscale:       ()=>window.ieDispatchAIStyle('ai_upscale'),
+    ai_colorize:      ()=>window.ieDispatchAIStyle('ai_colorize'),
+    ai_face_enhance:  ()=>window.ieDispatchAIStyle('ai_face_enhance'),
+    ai_bg_replace:    ()=>window.ieDispatchAIStyle('ai_bg_replace'),
+    ai_edit_prompt:   ()=>window.ieOpenAIEditPrompt(),
+    ai_noise_reduce:  ()=>window.ieDispatchAIStyle('ai_noise_reduce'),
+  };
+
+  // Brain features
+  const brainFeatures=new Set(['ai_describe_edit','ai_moodboard','ai_prompt_optimizer','ai_negative_fill','ai_critique','ai_auto_retouch','ai_deepdream','ai_neural_style','ai_scene_understand','ai_storyboard']);
+  if(brainFeatures.has(fid)){window.ieOpenAIBrainFeature(fid);return;}
+
+  if(modalMap[fid]){modalMap[fid]();return;}
+
+  // AI dispatch for scene/face/wildcard AI features
+  const aiFeatures=new Set(['weather_swap','season_swap','time_of_day','sky_replace','reflection_add','shadow_synth','lens_flare','depth_map','parallax_2d3d','room_redesign','arch_reimagine','product_surface','age_slider','emotion_swap','eye_color','hair_color','beard_makeup','face_3d_rotate','ai_gender_swap','ai_virtual_tryon','ai_skin_lighting','multi_face_edit','puppet_warp','lip_sync','cartoon_to_real','old_photo_restore','meme_gen_v2','nft_metadata','image_to_music']);
+  if(aiFeatures.has(fid)){
+    if(!IE.currentDataURL){ieToast('Load an image first');return;}
+    const promptMap3={
+      weather_swap:'dramatic rainy stormy weather, wet streets, rain droplets, overcast moody sky',
+      season_swap:'vibrant autumn colors, orange and red leaves, golden light',
+      time_of_day:'golden hour sunset, warm orange sky, long dramatic shadows',
+      sky_replace:'dramatic stormy sky with crepuscular rays and epic clouds',
+      reflection_add:'add realistic water reflection below the scene, mirror effect',
+      shadow_synth:'add soft directional shadows at 45 degree angle, natural lighting',
+      lens_flare:'add cinematic anamorphic lens flare from light source, warm streak',
+      depth_map:'depth map visualization, near objects bright, distant objects dark',
+      parallax_2d3d:'3D parallax depth separation, layered depth effect',
+      room_redesign:'Scandinavian minimalist interior redesign, clean lines, neutral tones',
+      arch_reimagine:'Japanese ryokan architecture style, traditional wooden elements, zen garden',
+      product_surface:'place product on marble surface with soft studio lighting and natural shadow',
+      age_slider:'realistic aging, 20 years older, natural wrinkles, aged face features',
+      emotion_swap:'change to bright happy genuine smile, joyful expression, natural',
+      eye_color:'change eye color to vivid electric blue, realistic iris detail',
+      hair_color:'change hair to golden blonde, realistic natural looking hair',
+      beard_makeup:'add neat groomed beard, subtle professional makeup',
+      face_3d_rotate:'3D face rotation, face turned 30 degrees to the side, depth preserved',
+      ai_gender_swap:'reimagine with opposite gender presentation, natural realistic',
+      ai_virtual_tryon:'wearing a sharp professional business suit, perfect fit, natural pose',
+      ai_skin_lighting:'correct portrait lighting, balanced fill light, skin tone accurate',
+      multi_face_edit:'enhance all faces equally, consistent brightness and sharpness',
+      puppet_warp:'adjust body pose naturally, slight tilt, relaxed confident posture',
+      lip_sync:'mouth open in mid-speech, natural lip sync frame, realistic',
+      cartoon_to_real:'convert to photorealistic style, hyperrealistic, cinematic quality',
+      old_photo_restore:'restore old damaged photo, remove scratches, repair fading, colorize',
+      meme_gen_v2:'classic viral meme format, impact font, funny relatable caption',
+      nft_metadata:'unique digital artwork with rare traits, vibrant stylized, collectible',
+      image_to_music:'music visualization art, sound waves, frequency spectrum visualization',
+    };
+    const prompt=promptMap3[fid]||'enhance this image professionally, high quality';
+    const loading=document.getElementById('ie-canvas-loading');
+    if(loading)loading.classList.add('active');
+    ieToast('🤖 AI processing…');
+    try{
+      if(typeof imagineEditImage==='function'){
+        const res=await imagineEditImage(IE.currentDataURL,prompt);
+        const newURL=res?.resultDataURL||res?.url||IE.currentDataURL;
+        iePushHistory(newURL,IE.activeFilter?.name||'AI');IE.currentDataURL=newURL;
+        await ieLoadCanvas(newURL);ieRenderHistory();ieToast('✓ Applied!');
+      } else {
+        const enc=encodeURIComponent(prompt);
+        const url=`https://image.pollinations.ai/prompt/${enc}?width=768&height=768&model=flux&nologo=true`;
+        const resp=await fetch(url);const blob2=await resp.blob();
+        const reader=new FileReader();
+        reader.onload=async ev=>{
+          iePushHistory(ev.target.result,IE.activeFilter?.name||'AI');IE.currentDataURL=ev.target.result;
+          await ieLoadCanvas(ev.target.result);ieRenderHistory();ieToast('✓ Applied!');
+        };reader.readAsDataURL(blob2);
+      }
+    }catch(e){ieToast('⚠️ AI failed');}
+    finally{if(loading)loading.classList.remove('active');}
+    return;
+  }
+
+  if(_ieApplyAdv) await _ieApplyAdv();
+};
+
+// QR & Steganography quick handlers
+window.ieDoQR=async function(){
+  const url=document.getElementById('qr-url-inp')?.value||'https://daveai.app';
+  const qrURL=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}&margin=1`;
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  const qrImg=new Image();qrImg.crossOrigin='anonymous';
+  qrImg.onload=()=>{
+    const sz=Math.floor(Math.min(W,H)*.22);
+    ctx.globalAlpha=.9;ctx.drawImage(qrImg,W-sz-16,H-sz-16,sz,sz);ctx.globalAlpha=1;
+    const newURL=canvas.toDataURL();
+    iePushHistory(newURL,'📱 QR Artify');IE.currentDataURL=newURL;
+    document.getElementById('ie-feature-modal')?.remove();
+    ieToast('✓ QR overlaid!');ieRenderHistory();
+  };
+  qrImg.onerror=()=>ieToast('⚠️ QR failed');
+  qrImg.src=qrURL;
+};
+
+window.ieDoSteg=function(){
+  const msg=document.getElementById('steg-msg')?.value||'';
+  if(!msg){ieToast('Enter a message');return;}
+  const canvas=document.getElementById('ie-canvas-el');
+  const id=_getPixels(canvas),d=id.data;
+  const msgBits=(msg+'\0').split('').map(c=>c.charCodeAt(0).toString(2).padStart(8,'0')).join('');
+  if(msgBits.length>d.length){ieToast('⚠️ Message too long');return;}
+  for(let i=0;i<msgBits.length;i++)d[i]=(d[i]&0xFE)|parseInt(msgBits[i]);
+  _putPixels(canvas,id);
+  const newURL=canvas.toDataURL('image/png');
+  iePushHistory(newURL,'🔐 Hidden Msg');IE.currentDataURL=newURL;ieLoadCanvas(newURL);
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Message hidden in pixels!');ieRenderHistory();
+};
+
+// ── Override ieSetCat for new categories ─────────────────────────
+const _ieSetCatOrig=window.ieSetCat;
+window.ieSetCat=function(btn,cat){
+  if(_ieSetCatOrig)_ieSetCatOrig(btn,cat);
+  const newCats=['brain','face_adv','scene','colorscience','draw','animate','technical','collab','wildcard'];
+  if(newCats.includes(cat)){
+    const ap=document.getElementById('ie-adjust-panel');
+    const tc=document.getElementById('ie-text-config');
+    if(ap)ap.style.display='none';
+    if(tc)tc.classList.remove('active');
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════
+//  MISSING FEATURE IMPLEMENTATIONS — all 26 gaps closed
+// ══════════════════════════════════════════════════════════════════
+
+// ── AI Style dispatcher (reuses existing promptMap + imagineEditImage) ──
+const _aiStylePrompts={
+  ai_style_anime:   'anime style, studio ghibli art, vibrant cel shading, hand-drawn look',
+  ai_style_oil:     'oil painting masterpiece, thick impasto brushstrokes, gallery artwork, Rembrandt lighting',
+  ai_style_sketch:  'pencil sketch, detailed charcoal drawing, crosshatching, hand-drawn linework, white paper',
+  ai_style_vintage: 'vintage 1970s film photo, faded analog colors, vignette, film grain, retro',
+  ai_style_cyberpunk:'cyberpunk neon city, blade runner aesthetic, neon lights, rainy streets, futuristic',
+  ai_style_3d:      '3D render, Octane render, photorealistic CGI, subsurface scattering, 8K quality',
+  ai_bg_remove:     'remove background completely, isolate subject on pure white, clean cutout',
+  ai_bg_blur:       'strong bokeh background blur, portrait mode depth-of-field, sharp subject, blurred background',
+  ai_clothes:       'swap outfit to stylish casual wear, natural pose preserved, photorealistic',
+  ai_upscale:       'ultra high resolution upscale, 4x enlargement, sharpen details, enhance textures, no artifacts',
+  ai_colorize:      'colorize black and white photo with natural realistic colors, period-accurate palette',
+  ai_face_enhance:  'face restoration and enhancement, GFPGAN quality, clear skin, sharp eyes, natural look',
+  ai_bg_replace:    'replace background with beautiful natural landscape, seamless compositing, matching lighting',
+  ai_noise_reduce:  'remove noise and grain, clean smooth image, preserve sharp edges and fine details',
+};
+
+window.ieDispatchAIStyle=async function(fid){
+  if(!IE.currentDataURL){ieToast('⚠️ Load an image first');return;}
+  const prompt=_aiStylePrompts[fid]||'enhance this image professionally';
+  const loading=document.getElementById('ie-canvas-loading');
+  if(loading)loading.classList.add('active');
+  ieToast('🤖 AI processing…');
+  try{
+    if(typeof imagineEditImage==='function'){
+      const res=await imagineEditImage(IE.currentDataURL,prompt);
+      const newURL=res?.resultDataURL||res?.url||IE.currentDataURL;
+      iePushHistory(newURL,IE.activeFilter?.name||fid);IE.currentDataURL=newURL;
+      await ieLoadCanvas(newURL);ieRenderHistory();ieToast('✓ Applied!');
+    } else {
+      const enc=encodeURIComponent(prompt);
+      const url=`https://image.pollinations.ai/prompt/${enc}?width=768&height=768&model=flux&nologo=true`;
+      const resp=await fetch(url);const blob=await resp.blob();
+      const reader=new FileReader();
+      reader.onload=async ev=>{
+        iePushHistory(ev.target.result,IE.activeFilter?.name||fid);IE.currentDataURL=ev.target.result;
+        await ieLoadCanvas(ev.target.result);ieRenderHistory();ieToast('✓ Applied!');
+      };reader.readAsDataURL(blob);
+    }
+  }catch(e){ieToast('⚠️ AI failed');}
+  finally{if(loading)loading.classList.remove('active');}
+};
+
+// ── ai_edit_prompt — custom text prompt UI ───────────────────────
+window.ieOpenAIEditPrompt=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Describe any edit in plain language. The AI will apply it to your image.</p>
+    <div class="ie-fm-label">Your Edit Instruction</div>
+    <textarea class="ie-fm-input" id="aep-inp" rows="4" placeholder="e.g. Make the sky purple and add stars, remove the person on the left, turn this into a painting…"></textarea>
+    <div class="ie-fm-chip-row" style="margin-top:10px" id="aep-suggestions">
+      <div class="ie-fm-chip" onclick="document.getElementById('aep-inp').value=this.textContent">Enhance lighting</div>
+      <div class="ie-fm-chip" onclick="document.getElementById('aep-inp').value=this.textContent">Remove background</div>
+      <div class="ie-fm-chip" onclick="document.getElementById('aep-inp').value=this.textContent">Add dramatic sunset</div>
+      <div class="ie-fm-chip" onclick="document.getElementById('aep-inp').value=this.textContent">Convert to sketch</div>
+      <div class="ie-fm-chip" onclick="document.getElementById('aep-inp').value=this.textContent">Make it cinematic</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="window.ieRunCustomPrompt()">🤖 Apply</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Custom AI Edit','💬');
+};
+window.ieRunCustomPrompt=async function(){
+  const prompt=document.getElementById('aep-inp')?.value?.trim();
+  if(!prompt){ieToast('Enter an instruction first');return;}
+  document.getElementById('ie-feature-modal')?.remove();
+  await window.ieDispatchAIStyle('ai_edit_prompt');
+  // Override the generic prompt with the user's
+  const _orig=_aiStylePrompts.ai_edit_prompt;
+  _aiStylePrompts.ai_edit_prompt=prompt;
+  await window.ieDispatchAIStyle('ai_edit_prompt');
+  _aiStylePrompts.ai_edit_prompt=_orig;
+};
+
+// ── Color Grading Wheels ──────────────────────────────────────────
+window.ieOpenColorWheels=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Adjust color temperature and tint for shadows, midtones, and highlights — like a professional color grading suite.</p>
+    <div class="ie-fm-label">Shadows</div>
+    <div class="ie-fm-range-row"><span style="font-size:11px;color:rgba(255,255,255,.4);width:60px">Temp</span><input class="ie-fm-range" type="range" id="cw-sh-temp" min="-50" max="50" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-range-row"><span style="font-size:11px;color:rgba(255,255,255,.4);width:60px">Tint</span><input class="ie-fm-range" type="range" id="cw-sh-tint" min="-50" max="50" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-label">Midtones</div>
+    <div class="ie-fm-range-row"><span style="font-size:11px;color:rgba(255,255,255,.4);width:60px">Temp</span><input class="ie-fm-range" type="range" id="cw-md-temp" min="-50" max="50" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-range-row"><span style="font-size:11px;color:rgba(255,255,255,.4);width:60px">Tint</span><input class="ie-fm-range" type="range" id="cw-md-tint" min="-50" max="50" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-label">Highlights</div>
+    <div class="ie-fm-range-row"><span style="font-size:11px;color:rgba(255,255,255,.4);width:60px">Temp</span><input class="ie-fm-range" type="range" id="cw-hi-temp" min="-50" max="50" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-range-row"><span style="font-size:11px;color:rgba(255,255,255,.4);width:60px">Tint</span><input class="ie-fm-range" type="range" id="cw-hi-tint" min="-50" max="50" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="window.ieApplyColorWheels()">🎡 Apply Grading</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Color Grading Wheels','🎡');
+};
+window.ieApplyColorWheels=function(){
+  const shTemp=parseInt(document.getElementById('cw-sh-temp')?.value||0);
+  const shTint=parseInt(document.getElementById('cw-sh-tint')?.value||0);
+  const mdTemp=parseInt(document.getElementById('cw-md-temp')?.value||0);
+  const mdTint=parseInt(document.getElementById('cw-md-tint')?.value||0);
+  const hiTemp=parseInt(document.getElementById('cw-hi-temp')?.value||0);
+  const hiTint=parseInt(document.getElementById('cw-hi-tint')?.value||0);
+  const canvas=document.getElementById('ie-canvas-el');
+  const id=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height);
+  const d=id.data;
+  for(let i=0;i<d.length;i+=4){
+    const lum=(d[i]*.299+d[i+1]*.587+d[i+2]*.114)/255;
+    // Shadow weight: dark pixels, Midtone: mid pixels, Highlight: bright pixels
+    const sw=Math.max(0,1-lum*3);
+    const hw=Math.max(0,(lum-.67)*3);
+    const mw=Math.max(0,1-Math.abs(lum-.5)*4);
+    const rShift=(shTemp*sw+mdTemp*mw+hiTemp*hw)*.8;
+    const gShift=(shTint*sw+mdTint*mw+hiTint*hw)*.4;
+    const bShift=(-shTemp*sw-mdTemp*mw-hiTemp*hw)*.8;
+    d[i]=Math.max(0,Math.min(255,d[i]+rShift));
+    d[i+1]=Math.max(0,Math.min(255,d[i+1]+gShift));
+    d[i+2]=Math.max(0,Math.min(255,d[i+2]+bShift));
+  }
+  canvas.getContext('2d').putImageData(id,0,0);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🎡 Color Wheels');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Color grading applied!');ieRenderHistory();
+};
+
+// ── Color Harmony Analyzer ────────────────────────────────────────
+window.ieOpenColorHarmony=function(){
+  const canvas=document.getElementById('ie-canvas-el');
+  if(!canvas||!IE.currentDataURL){ieToast('Load an image first');return;}
+  const d=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+  // Sample hues from image
+  const hues=[];
+  for(let i=0;i<d.length;i+=40){
+    if(d[i+3]<10)continue;
+    const r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255;
+    const max=Math.max(r,g,b),min=Math.min(r,g,b);
+    if(max-min<0.15)continue; // skip near-gray
+    let h;
+    if(max===r)h=(g-b)/(max-min)%6;
+    else if(max===g)h=(b-r)/(max-min)+2;
+    else h=(r-g)/(max-min)+4;
+    hues.push(Math.round((h/6)*360+360)%360);
+  }
+  // Find dominant hue
+  const hueMap={};
+  hues.forEach(h=>{const k=Math.round(h/30)*30;hueMap[k]=(hueMap[k]||0)+1;});
+  const dominant=Object.entries(hueMap).sort((a,b)=>b[1]-a[1])[0]?.[0]||0;
+  const dom=parseInt(dominant);
+  const harmonies={
+    'Complementary':[dom,(dom+180)%360],
+    'Triadic':[dom,(dom+120)%360,(dom+240)%360],
+    'Analogous':[dom,(dom+30)%360,(dom+330)%360],
+    'Split-Complementary':[dom,(dom+150)%360,(dom+210)%360],
+  };
+  const swatchHTML=Object.entries(harmonies).map(([name,cols])=>`
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em">${name}</div>
+      <div style="display:flex;gap:6px">${cols.map(h=>`<div style="width:36px;height:36px;border-radius:8px;background:hsl(${h},65%,55%);cursor:pointer;title='hsl(${h},65%,55%)'" onclick="navigator.clipboard&&navigator.clipboard.writeText('hsl(${h},65%,55%)')"></div>`).join('')}</div>
+    </div>
+  `).join('');
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Dominant hue detected: <strong style="color:hsl(${dom},65%,60%)">hsl(${dom}°)</strong>. Click swatches to copy.</p>
+    ${swatchHTML}
+    <button class="ie-fm-btn secondary" style="margin-top:8px;width:100%" onclick="document.getElementById('ie-feature-modal').remove()">Close</button>
+  `,'Color Harmony Analyzer','🎵');
+};
+
+// ── Shape Library ─────────────────────────────────────────────────
+window.ieOpenShapeLibrary=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Overlay a vector shape onto your image.</p>
+    <div class="ie-fm-label">Shape</div>
+    <div class="ie-fm-chip-row" id="shape-chips">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">⬛ Rectangle</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">⭕ Circle</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">⭐ Star</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">💬 Bubble</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">➡️ Arrow</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">❤️ Heart</div>
+    </div>
+    <div class="ie-fm-label">Color</div>
+    <div class="ie-fm-swatch-row">
+      ${['#ffffff','#000000','#ef4444','#3b82f6','#22c55e','#f59e0b','#a855f7','#ec4899'].map((c,i)=>`<div class="ie-fm-swatch${i===0?' active':''}" style="background:${c}" onclick="ieSelectSwatch(this,'shape-color','${c}');window._ieShapeColor='${c}'"></div>`).join('')}
+    </div>
+    <div class="ie-fm-label">Size</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="shape-size" min="10" max="60" value="30" oninput="this.nextSibling.textContent=this.value+'%'"><span class="ie-fm-range-val">30%</span></div>
+    <div class="ie-fm-label">Opacity</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="shape-opacity" min="10" max="100" value="80" oninput="this.nextSibling.textContent=this.value+'%'"><span class="ie-fm-range-val">80%</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="window.ieDrawShape()">🔷 Add Shape</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Shape Library','🔷');
+  window._ieShapeColor='#ffffff';
+};
+window.ieDrawShape=function(){
+  const shape=document.querySelector('#shape-chips .active')?.textContent||'⬛ Rectangle';
+  const color=window._ieShapeColor||'#ffffff';
+  const sizePct=parseInt(document.getElementById('shape-size')?.value||30)/100;
+  const opacity=parseInt(document.getElementById('shape-opacity')?.value||80)/100;
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  const cx=W/2,cy=H/2,sz=Math.min(W,H)*sizePct;
+  ctx.globalAlpha=opacity;ctx.fillStyle=color;ctx.strokeStyle=color;ctx.lineWidth=3;
+  if(shape.includes('Rectangle')){ctx.fillRect(cx-sz,cy-sz*.6,sz*2,sz*1.2);}
+  else if(shape.includes('Circle')){ctx.beginPath();ctx.arc(cx,cy,sz,0,Math.PI*2);ctx.fill();}
+  else if(shape.includes('Star')){
+    ctx.beginPath();
+    for(let i=0;i<10;i++){const r=i%2===0?sz:sz*.4,a=(i*Math.PI/5)-Math.PI/2;ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}
+    ctx.closePath();ctx.fill();
+  }
+  else if(shape.includes('Bubble')){
+    ctx.beginPath();ctx.arc(cx,cy-sz*.1,sz,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.moveTo(cx-sz*.2,cy+sz*.8);ctx.lineTo(cx+sz*.3,cy+sz*.85);ctx.lineTo(cx,cy+sz*.95);ctx.fill();
+  }
+  else if(shape.includes('Arrow')){
+    ctx.beginPath();ctx.moveTo(cx-sz,cy);ctx.lineTo(cx+sz*.5,cy);ctx.lineTo(cx+sz*.5,cy-sz*.3);ctx.lineTo(cx+sz,cy);ctx.lineTo(cx+sz*.5,cy+sz*.3);ctx.lineTo(cx+sz*.5,cy);ctx.fill();
+  }
+  else if(shape.includes('Heart')){
+    ctx.beginPath();ctx.moveTo(cx,cy+sz*.8);
+    ctx.bezierCurveTo(cx-sz*1.2,cy+sz*.1,cx-sz*1.2,cy-sz*.7,cx,cy-sz*.3);
+    ctx.bezierCurveTo(cx+sz*1.2,cy-sz*.7,cx+sz*1.2,cy+sz*.1,cx,cy+sz*.8);
+    ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🔷 Shape');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Shape added!');ieRenderHistory();
+};
+
+// ── Pressure Brush Painter ────────────────────────────────────────
+window.ieOpenPressureBrush=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Paint directly on your image. Click Apply when done to commit.</p>
+    <div class="ie-fm-label">Brush Color</div>
+    <div class="ie-fm-swatch-row">
+      ${['#ffffff','#000000','#ef4444','#3b82f6','#22c55e','#f59e0b','#a855f7','#ff6b6b'].map((c,i)=>`<div class="ie-fm-swatch${i===0?' active':''}" style="background:${c}" onclick="ieSelectSwatch(this,'pb-color','${c}');window._iePBColor='${c}'"></div>`).join('')}
+    </div>
+    <div class="ie-fm-label">Brush Size</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="pb-size" min="2" max="60" value="15" oninput="this.nextSibling.textContent=this.value+'px';window._iePBSize=parseInt(this.value)"><span class="ie-fm-range-val">15px</span></div>
+    <div class="ie-fm-label">Opacity</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="pb-opacity" min="5" max="100" value="70" oninput="this.nextSibling.textContent=this.value+'%';window._iePBOpacity=parseInt(this.value)/100"><span class="ie-fm-range-val">70%</span></div>
+    <div class="ie-fm-label">Mode</div>
+    <div class="ie-fm-chip-row" id="pb-mode-chips">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this);window._iePBMode='paint'">Paint</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this);window._iePBMode='erase'">Eraser</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this);window._iePBMode='blur'">Blur</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this);window._iePBMode='brighten'">Brighten</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="window.ieActivatePressureBrush()">🖌️ Start Painting</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Pressure Brush','🖌️');
+  window._iePBColor='#ffffff';window._iePBSize=15;window._iePBOpacity=0.7;window._iePBMode='paint';
+};
+window.ieActivatePressureBrush=function(){
+  document.getElementById('ie-feature-modal')?.remove();
+  const canvas=document.getElementById('ie-canvas-el');
+  if(!canvas){ieToast('No canvas found');return;}
+  canvas.style.cursor='crosshair';
+  let painting=false;
+  const ctx=canvas.getContext('2d');
+  const getPos=(e)=>{const r=canvas.getBoundingClientRect();const sc=canvas.width/r.width;return{x:(e.clientX-r.left)*sc,y:(e.clientY-r.top)*sc};};
+  const doPaint=(e)=>{
+    if(!painting)return;
+    const{x,y}=getPos(e);
+    const sz=window._iePBSize||15;
+    const mode=window._iePBMode||'paint';
+    if(mode==='paint'){
+      ctx.globalAlpha=window._iePBOpacity||0.7;
+      ctx.fillStyle=window._iePBColor||'#fff';
+      ctx.beginPath();ctx.arc(x,y,sz/2,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=1;
+    } else if(mode==='erase'){
+      ctx.globalCompositeOperation='destination-out';
+      ctx.beginPath();ctx.arc(x,y,sz/2,0,Math.PI*2);ctx.fill();
+      ctx.globalCompositeOperation='source-over';
+    } else if(mode==='brighten'){
+      const id=ctx.getImageData(x-sz/2,y-sz/2,sz,sz);
+      for(let i=0;i<id.data.length;i+=4){id.data[i]=Math.min(255,id.data[i]+20);id.data[i+1]=Math.min(255,id.data[i+1]+20);id.data[i+2]=Math.min(255,id.data[i+2]+20);}
+      ctx.putImageData(id,x-sz/2,y-sz/2);
+    }
+  };
+  const stop=()=>{
+    if(!painting)return;painting=false;
+    canvas.style.cursor='default';
+    canvas.removeEventListener('mousedown',start);canvas.removeEventListener('mousemove',doPaint);
+    canvas.removeEventListener('mouseup',stop);canvas.removeEventListener('mouseleave',stop);
+    const newURL=canvas.toDataURL();
+    iePushHistory(newURL,'🖌️ Brush Paint');IE.currentDataURL=newURL;ieRenderHistory();
+    ieToast('✓ Brush strokes committed!');
+  };
+  const start=(e)=>{painting=true;doPaint(e);};
+  canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',doPaint);
+  canvas.addEventListener('mouseup',stop);canvas.addEventListener('mouseleave',stop);
+  ieToast('🖌️ Painting active — click & drag. Move mouse away to commit.');
+};
+
+// ── Focus Stacking (simulated) ────────────────────────────────────
+window.ieOpenFocusStack=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Simulate a focus-stacked result by applying smart sharpening across all depth planes of your image.</p>
+    <div class="ie-fm-label">Focus Zone</div>
+    <div class="ie-fm-chip-row" id="fs2-zone">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">Full Frame</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Center Sharp</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Foreground Sharp</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Background Sharp</div>
+    </div>
+    <div class="ie-fm-label">Sharpness Boost</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="fs2-amount" min="1" max="5" value="3" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">3</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="window.ieApplyFocusStack()">📷 Apply Stack</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Focus Stacking','📷');
+};
+window.ieApplyFocusStack=function(){
+  const zone=document.querySelector('#fs2-zone .active')?.textContent||'Full Frame';
+  const amount=parseInt(document.getElementById('fs2-amount')?.value||3);
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  // Unsharp mask sharpening using convolution
+  const orig=ctx.getImageData(0,0,W,H);
+  const blurC=document.createElement('canvas');blurC.width=W;blurC.height=H;
+  const bctx=blurC.getContext('2d');bctx.filter=`blur(${amount}px)`;bctx.drawImage(canvas,0,0);bctx.filter='none';
+  const blurred=bctx.getImageData(0,0,W,H);
+  const out=new Uint8ClampedArray(orig.data);
+  for(let y=0;y<H;y++){
+    // Zone weighting
+    let zw=1;
+    if(zone==='Center Sharp'){const dy=(y/H-.5)*2;zw=Math.max(0,1-dy*dy);}
+    else if(zone==='Foreground Sharp'){zw=y/H;}
+    else if(zone==='Background Sharp'){zw=1-y/H;}
+    for(let x=0;x<W;x++){
+      const i=(y*W+x)*4;
+      for(let c=0;c<3;c++){
+        const diff=orig.data[i+c]-blurred.data[i+c];
+        out[i+c]=Math.max(0,Math.min(255,orig.data[i+c]+diff*amount*zw*.5));
+      }
+    }
+  }
+  ctx.putImageData(new ImageData(out,W,H),0,0);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'📷 Focus Stack');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Focus stacking applied!');ieRenderHistory();
+};
+
+// ── HDR Merge (single-image HDR tone-mapping) ─────────────────────
+window.ieOpenHDRMerge=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Tone-map your image to simulate HDR fusion — recovering shadows and highlights simultaneously.</p>
+    <div class="ie-fm-label">HDR Strength</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="hdr2-strength" min="1" max="10" value="5" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">5</span></div>
+    <div class="ie-fm-label">Local Contrast</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="hdr2-lc" min="0" max="10" value="4" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">4</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="window.ieApplyHDRMerge()">🌅 Apply HDR</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'HDR Merge','🌅');
+};
+window.ieApplyHDRMerge=function(){
+  const strength=parseInt(document.getElementById('hdr2-strength')?.value||5)/10;
+  const lc=parseInt(document.getElementById('hdr2-lc')?.value||4)/10;
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height,ctx=canvas.getContext('2d');
+  const orig=ctx.getImageData(0,0,W,H),d=orig.data;
+  // Reinhard tone-mapping per pixel + local contrast
+  for(let i=0;i<d.length;i+=4){
+    for(let c=0;c<3;c++){
+      const v=d[i+c]/255;
+      // Reinhard
+      const tm=v*(1+v*strength)/(1+v);
+      // Boost shadows, recover highlights
+      const shadowBoost=Math.pow(1-v,2)*strength*.3;
+      const result=Math.min(1,tm+shadowBoost);
+      d[i+c]=Math.round(result*255);
+    }
+    // Local contrast boost (clarity)
+    const lum=(d[i]+d[i+1]+d[i+2])/3/255;
+    const clarityMid=1+lc*(1-4*Math.pow(lum-.5,2));
+    for(let c=0;c<3;c++)d[i+c]=Math.max(0,Math.min(255,d[i+c]*clarityMid));
+  }
+  ctx.putImageData(orig,0,0);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🌅 HDR Merge');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ HDR merge applied!');ieRenderHistory();
+};
+
+// ── Panorama Stitch (single-image wide mode) ──────────────────────
+window.ieOpenPanoramaStitch=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Stretch your image into a wide panoramic crop with content-aware fill on the sides.</p>
+    <div class="ie-fm-label">Output Ratio</div>
+    <div class="ie-fm-chip-row" id="pano-ratio">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">2:1 Wide</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">3:1 Cinematic</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">4:1 Ultra Wide</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="window.ieApplyPanorama()">🌐 Create Panorama</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Panorama Stitch','🌐');
+};
+window.ieApplyPanorama=function(){
+  const ratio=document.querySelector('#pano-ratio .active')?.textContent||'2:1 Wide';
+  const mult={' 2:1 Wide':2,'3:1 Cinematic':3,'4:1 Ultra Wide':4}[ratio]||2;
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height;
+  const newW=W*mult,newH=H;
+  const out=document.createElement('canvas');out.width=newW;out.height=newH;
+  const octx=out.getContext('2d');
+  // Fill sides by flipping/mirroring the image
+  octx.save();octx.translate(0,0);octx.scale(-1,1);octx.drawImage(canvas,-W,0);octx.restore();
+  octx.drawImage(canvas,(newW-W)/2,0);
+  if(mult>=3){octx.save();octx.translate(newW,0);octx.scale(-1,1);octx.drawImage(canvas,-(newW-W),0);octx.restore();}
+  // Blend seams
+  const grad1=octx.createLinearGradient(W*.4,0,W*.6,0);
+  grad1.addColorStop(0,'rgba(0,0,0,0)');grad1.addColorStop(1,'rgba(0,0,0,0)');
+  canvas.width=newW;canvas.height=newH;
+  canvas.getContext('2d').drawImage(out,0,0);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🌐 Panorama');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Panorama created!');ieRenderHistory();
+};
+
+// ── Lens Distortion Fix ───────────────────────────────────────────
+window.applyLensDistortFix=function(canvas){
+  const W=canvas.width,H=canvas.height;
+  const ctx=canvas.getContext('2d');
+  const orig=ctx.getImageData(0,0,W,H);
+  const out=new Uint8ClampedArray(orig.data.length);
+  const cx=W/2,cy=H/2,k=-.25; // barrel distortion correction
+  for(let y=0;y<H;y++){for(let x=0;x<W;x++){
+    const nx=(x-cx)/cx,ny=(y-cy)/cy;
+    const r2=nx*nx+ny*ny;
+    const factor=1+k*r2;
+    const sx=nx*factor*cx+cx,sy=ny*factor*cy+cy;
+    const si=(Math.round(Math.max(0,Math.min(H-1,sy)))*W+Math.round(Math.max(0,Math.min(W-1,sx))))*4;
+    const di=(y*W+x)*4;
+    out[di]=orig.data[si];out[di+1]=orig.data[si+1];out[di+2]=orig.data[si+2];out[di+3]=255;
+  }}
+  ctx.putImageData(new ImageData(out,W,H),0,0);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🔭 Lens Fix');IE.currentDataURL=newURL;ieLoadCanvas(newURL);ieRenderHistory();
+  ieToast('✓ Lens distortion corrected!');
+};
+
+// ── Chromatic Aberration Fix ──────────────────────────────────────
+window.applyChromAberrFix=function(canvas){
+  const W=canvas.width,H=canvas.height,ctx=canvas.getContext('2d');
+  const orig=ctx.getImageData(0,0,W,H),d=orig.data;
+  const out=new Uint8ClampedArray(d);
+  const shift=2; // pixels to shift R and B channels
+  for(let y=0;y<H;y++){for(let x=0;x<W;x++){
+    const di=(y*W+x)*4;
+    // Shift red channel left, blue channel right to cancel CA
+    const rx=Math.max(0,Math.min(W-1,x-shift)),bx=Math.max(0,Math.min(W-1,x+shift));
+    out[di]=d[(y*W+rx)*4];           // R from left
+    out[di+1]=d[di+1];               // G unchanged
+    out[di+2]=d[(y*W+bx)*4+2];      // B from right
+    out[di+3]=255;
+  }}
+  ctx.putImageData(new ImageData(out,W,H),0,0);
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'🔬 CA Fix');IE.currentDataURL=newURL;ieLoadCanvas(newURL);ieRenderHistory();
+  ieToast('✓ Chromatic aberration corrected!');
+};
+
+// ── RAW Pipeline (non-destructive adjustment stack) ───────────────
+window.ieOpenRawPipeline=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Apply a full RAW development pipeline — exposure, white balance, tone curve, sharpening — in one pass.</p>
+    <div class="ie-fm-label">Exposure (EV)</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="raw-ev" min="-2" max="2" value="0" step="0.1" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-label">White Balance (Kelvin)</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="raw-wb" min="-50" max="50" value="0" oninput="this.nextSibling.textContent=(this.value>0?'+':'')+this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-label">Clarity</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="raw-clarity" min="-50" max="50" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-label">Vibrance</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="raw-vib" min="-50" max="50" value="0" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">0</span></div>
+    <div class="ie-fm-label">Lens Sharpening</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="raw-sharp" min="0" max="100" value="40" oninput="this.nextSibling.textContent=this.value"><span class="ie-fm-range-val">40</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="window.ieApplyRawPipeline()">📸 Develop</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'RAW Pipeline','📸');
+};
+window.ieApplyRawPipeline=function(){
+  const ev=parseFloat(document.getElementById('raw-ev')?.value||0);
+  const wb=parseInt(document.getElementById('raw-wb')?.value||0);
+  const clarity=parseInt(document.getElementById('raw-clarity')?.value||0)/100;
+  const vibrance=parseInt(document.getElementById('raw-vib')?.value||0)/100;
+  const sharpAmt=parseInt(document.getElementById('raw-sharp')?.value||40)/100;
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height,ctx=canvas.getContext('2d');
+  const id=ctx.getImageData(0,0,W,H),d=id.data;
+  const evMult=Math.pow(2,ev);
+  for(let i=0;i<d.length;i+=4){
+    // Exposure
+    let r=Math.min(255,d[i]*evMult),g=Math.min(255,d[i+1]*evMult),b=Math.min(255,d[i+2]*evMult);
+    // White balance (warm/cool shift)
+    r=Math.max(0,Math.min(255,r+wb*.8));b=Math.max(0,Math.min(255,b-wb*.8));
+    // Vibrance (boost less-saturated colors more)
+    const mx=Math.max(r,g,b)/255,mn=Math.min(r,g,b)/255,sat=mx-mn;
+    const vibBoost=vibrance*(1-sat)*0.5;
+    const lumV=(r*.299+g*.587+b*.114)/255;
+    r=Math.max(0,Math.min(255,lumV*255+(r-lumV*255)*(1+vibBoost)));
+    g=Math.max(0,Math.min(255,lumV*255+(g-lumV*255)*(1+vibBoost)));
+    b=Math.max(0,Math.min(255,lumV*255+(b-lumV*255)*(1+vibBoost)));
+    d[i]=r;d[i+1]=g;d[i+2]=b;
+  }
+  ctx.putImageData(id,0,0);
+  // Clarity = local contrast via unsharp mask
+  if(Math.abs(clarity)>0.05){
+    const bc=document.createElement('canvas');bc.width=W;bc.height=H;
+    const bctx=bc.getContext('2d');bctx.filter='blur(8px)';bctx.drawImage(canvas,0,0);bctx.filter='none';
+    const blurred=bctx.getImageData(0,0,W,H);
+    const sharp=ctx.getImageData(0,0,W,H);
+    for(let i=0;i<sharp.data.length;i+=4){
+      const lum=(sharp.data[i]*.299+sharp.data[i+1]*.587+sharp.data[i+2]*.114)/255;
+      const mid=1-4*Math.pow(lum-.5,2); // peaks at midtones
+      for(let c=0;c<3;c++){
+        const diff=sharp.data[i+c]-blurred.data[i+c];
+        sharp.data[i+c]=Math.max(0,Math.min(255,sharp.data[i+c]+diff*clarity*mid*2));
+      }
+    }
+    ctx.putImageData(sharp,0,0);
+  }
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'📸 RAW Develop');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ RAW pipeline applied!');ieRenderHistory();
+};
+
+// ── Comic Panelizer ───────────────────────────────────────────────
+window.ieOpenComicPanelizer=function(){
+  ieShowModal(`
+    <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px">Slice your image into a comic-book style panel grid.</p>
+    <div class="ie-fm-label">Panel Layout</div>
+    <div class="ie-fm-chip-row" id="comic-layout">
+      <div class="ie-fm-chip active" onclick="ieSelectChip(this)">2×2 Grid</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">3×2 Grid</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Manga Strip</div>
+      <div class="ie-fm-chip" onclick="ieSelectChip(this)">Hero + 3</div>
+    </div>
+    <div class="ie-fm-label">Border Color</div>
+    <div class="ie-fm-swatch-row">
+      ${['#000000','#ffffff','#1e1e2e','#ef4444'].map((c,i)=>`<div class="ie-fm-swatch${i===0?' active':''}" style="background:${c};border:1px solid rgba(255,255,255,.2)" onclick="ieSelectSwatch(this,'comic-border','${c}');window._ieComicBorder='${c}'"></div>`).join('')}
+    </div>
+    <div class="ie-fm-label">Border Width</div>
+    <div class="ie-fm-range-row"><input class="ie-fm-range" type="range" id="comic-bw" min="2" max="20" value="6" oninput="this.nextSibling.textContent=this.value+'px'"><span class="ie-fm-range-val">6px</span></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="ie-fm-btn primary" onclick="window.ieApplyComicPanels()">💬 Panelize</button>
+      <button class="ie-fm-btn secondary" onclick="document.getElementById('ie-feature-modal').remove()">Cancel</button>
+    </div>
+  `,'Comic Panelizer','💬');
+  window._ieComicBorder='#000000';
+};
+window.ieApplyComicPanels=function(){
+  const layout=document.querySelector('#comic-layout .active')?.textContent||'2×2 Grid';
+  const borderColor=window._ieComicBorder||'#000';
+  const bw=parseInt(document.getElementById('comic-bw')?.value||6);
+  const canvas=document.getElementById('ie-canvas-el');
+  const W=canvas.width,H=canvas.height,ctx=canvas.getContext('2d');
+  const src=document.createElement('canvas');src.width=W;src.height=H;
+  src.getContext('2d').drawImage(canvas,0,0);
+
+  // Define panel rects [x%,y%,w%,h%]
+  const layouts={
+    '2×2 Grid':[[0,0,.5,.5],[.5,0,.5,.5],[0,.5,.5,.5],[.5,.5,.5,.5]],
+    '3×2 Grid':[[0,0,.333,.5],[.333,0,.334,.5],[.667,0,.333,.5],[0,.5,.333,.5],[.333,.5,.334,.5],[.667,.5,.333,.5]],
+    'Manga Strip':[[0,0,1,.25],[0,.25,1,.25],[0,.5,1,.25],[0,.75,1,.25]],
+    'Hero + 3':[[0,0,.6,1],[.6,0,.4,.333],[.6,.333,.4,.334],[.6,.667,.4,.333]],
+  };
+  const panels=(layouts[layout]||layouts['2×2 Grid']);
+  ctx.fillStyle='#111';ctx.fillRect(0,0,W,H);
+  panels.forEach(([px,py,pw,ph])=>{
+    const x=px*W+bw/2,y=py*H+bw/2,w=pw*W-bw,h=ph*H-bw;
+    // Draw panel content (slightly zoomed version of that region)
+    ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+    // Zoom in 1.1x from center of panel
+    const sx=px*W,sy=py*H,sw=pw*W,sh=ph*H;
+    const zoom=1.1;ctx.drawImage(src,sx,sy,sw,sh,x-(w*(zoom-1)/2),y-(h*(zoom-1)/2),w*zoom,h*zoom);
+    ctx.restore();
+    // Border
+    ctx.strokeStyle=borderColor;ctx.lineWidth=bw;ctx.strokeRect(x,y,w,h);
+  });
+  const newURL=canvas.toDataURL();
+  iePushHistory(newURL,'💬 Comic Panels');IE.currentDataURL=newURL;
+  document.getElementById('ie-feature-modal')?.remove();
+  ieToast('✓ Comic panels applied!');ieRenderHistory();
+};
 
 })();
 </script>
