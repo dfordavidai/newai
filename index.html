@@ -29444,6 +29444,69 @@ document.addEventListener('keydown', e => {
 });
 
 console.log('%c✦ DaveAI v6 ULTRA — Templates:20 | Sections:60+ | AI Critic:✓ | Device Preview:✓ | Version History:✓ | Brand Brief:✓ | Auto-Fix:✓ | Export Suite:✓ | $100K System Prompt:✓', 'color:#a78bfa;font-weight:bold;font-size:11px;background:#0d0f12;padding:4px 10px;border-radius:6px;');
+focus]}. Format as markdown with clear sections.`,code.slice(0,3000),1500);
+    const el=document.getElementById('cr-result');el.style.display='block';el.innerHTML=`<div class="pp-result" style="max-height:400px;">${typeof marked!=='undefined'?marked.parse(result):result.replace(/\n/g,'<br>')}</div>`;
+    document.getElementById('cr-actions').style.display='flex';window._crResult=result;window._crCode=code;ppToast('✅ Code review complete!');
+  }catch(e){ppToast('Error: '+e.message);}
+};
+window.sendCRToChat=function(){const inp=document.getElementById('chat-input');if(inp&&window._crCode){inp.value=`Please fix all issues in this code:\n\`\`\`\n${window._crCode.slice(0,1000)}\n\`\`\`\n\nReview findings:\n${(window._crResult||'').slice(0,400)}`;if(typeof autoResize==='function')autoResize(inp);}closePP('codereviewer');};
+window.copyCRReport=function(){if(window._crResult)navigator.clipboard.writeText(window._crResult).then(()=>ppToast('📋 Report copied!'));};
+
+/* ── STATUS PILLS ── */
+function updatePPStatusPills(){
+  let el=document.getElementById('pp-status-pills');
+  if(!el){el=document.createElement('div');el.id='pp-status-pills';el.style.cssText='display:flex;gap:4px;align-items:center;';const tr=document.querySelector('.topbar-right');if(tr)tr.insertBefore(el,tr.firstChild);}
+  const pills=[];
+  if(PP.hallucShieldOn)pills.push('<span class="pp-chip amber" style="font-size:9px;padding:2px 7px;">🛡️ Shield</span>');
+  if(PP.readingLevelOn)pills.push(`<span class="pp-chip blue" style="font-size:9px;padding:2px 7px;">📖 ${RL_LABELS[PP.readingLevel-1]}</span>`);
+  if(PP.ghostMode)pills.push('<span class="pp-chip purple" style="font-size:9px;padding:2px 7px;">👻 Ghost</span>');
+  if(PP.forgedPersona)pills.push(`<span class="pp-chip amber" style="font-size:9px;padding:2px 7px;">${PP.forgedPersona.emoji} ${PP.forgedPersona.name.split(' ')[0]}</span>`);
+  if(PP.factCheckOn)pills.push('<span class="pp-chip green" style="font-size:9px;padding:2px 7px;">🔍 Fact-Check</span>');
+  el.innerHTML=pills.join('');
+}
+
+/* ── PATCH buildSystemPrompt ── */
+const _ppOrigBuildSys=window.buildSystemPrompt;
+if(typeof _ppOrigBuildSys==='function'){
+  window.buildSystemPrompt=function(){
+    let base=_ppOrigBuildSys();
+    base+=getRLSystemAddition();
+    base+=getForgeSystemAddition();
+    if(PP.langDetectOn&&PP.detectedLang&&PP.detectedLang.toLowerCase()!=='english')
+      base+=`\n\n[AUTO-LANGUAGE] User is writing in ${PP.detectedLang}. Respond in ${PP.detectedLang}.`;
+    return base;
+  };
+}
+
+/* ── PATCH chat input for language detect ── */
+const _ppChatInput=document.getElementById('chat-input');
+if(_ppChatInput){
+  _ppChatInput.addEventListener('keydown',async(e)=>{
+    if(e.key==='Enter'&&!e.shiftKey&&PP.langDetectOn){
+      const det=await detectAndApplyLang(_ppChatInput.value);
+      if(det&&det.toLowerCase()!=='english')ppToast(`🌐 Detected: ${det} — responding in ${det}`);
+    }
+  });
+}
+
+/* ── INIT ── */
+setTimeout(()=>{
+  injectPPSidebar();
+  injectPasteDetector();
+  aqRender();
+  wfRender();
+  renderForgeList();
+  updatePPStatusPills();
+
+  // Restore toggle states
+  if(PP.hallucShieldOn){const btn=document.getElementById('halluc-toggle-btn');if(btn){btn.textContent='ON';btn.style.background='rgba(62,207,142,.15)';btn.style.color='#3ecf8e';btn.style.borderColor='rgba(62,207,142,.3)';}}
+  if(PP.readingLevelOn){const btn=document.getElementById('rl-toggle-btn');if(btn){btn.textContent='ON';btn.style.background='rgba(62,207,142,.15)';btn.style.color='#3ecf8e';btn.style.borderColor='rgba(62,207,142,.3)';}const sl=document.getElementById('rl-slider');if(sl){sl.value=PP.readingLevel;updateRLLabel(PP.readingLevel);}}
+
+  console.log('%c⚡ DaveAI Power Pack v7 — ALL 20 FEATURES LOADED','color:#4f8ef7;font-weight:bold;font-size:13px;background:#0d0f12;padding:4px 10px;border-radius:6px;');
+  console.log('%c  🛡️Hallucination Shield | ⚖️Legal Analyzer | 🔍Smart Paste | 🌐Lang Detect | 📖Reading Level | ✅Fact-Check | 📑Doc Deep-Dive | 🌐Web Grounding | 🎭Image Gen | 🤖Pair Programmer | 👻Ghost Mode | 📋Task Queue | 🎭Persona Chat | 🔬Research Desk | ⚗️Persona Forge | ⚙️Workflow | 🌐Interpreter | 🎙️Voice+Emotion | 💻Code Sandbox | 🔍Code Reviewer','color:#9ba3b2;font-size:10px;');
+},900);
+
+})(); // end Power Pack v7 IIFE
 </script>
 
 </body>
