@@ -4758,7 +4758,7 @@ let settings = Object.assign({
   autoRoute:true,
   persona:'default', customPrompt:'', daveName:'DaveAI',
   autoScroll:true, typing:true, autoPlayVoice:false, showTools:true, canvasAuto:true,
-  autoMem:true, ragActive:false, transContext:true, // Bug fix: persist toggle states
+  autoMem:false, ragActive:false, transContext:true, // Bug fix: persist toggle states
 }, (()=>{try{return JSON.parse(localStorage.getItem('daveai_s10')||'{}');}catch(e){localStorage.removeItem('daveai_s10');return{};}})());
 
 // ── KEY POOL UI MANAGEMENT ──
@@ -29444,6 +29444,78 @@ document.addEventListener('keydown', e => {
 });
 
 console.log('%c✦ DaveAI v6 ULTRA — Templates:20 | Sections:60+ | AI Critic:✓ | Device Preview:✓ | Version History:✓ | Brand Brief:✓ | Auto-Fix:✓ | Export Suite:✓ | $100K System Prompt:✓', 'color:#a78bfa;font-weight:bold;font-size:11px;background:#0d0f12;padding:4px 10px;border-radius:6px;');
+
+// ── MEMORY FIX: Disable auto-memory & show banner if stale memories exist ──
+(function fixMemoryLeak() {
+  // 1. Force auto-memory OFF in storage and settings
+  try {
+    const s = JSON.parse(localStorage.getItem('daveai_s10') || '{}');
+    s.autoMem = false;
+    localStorage.setItem('daveai_s10', JSON.stringify(s));
+  } catch(e) {}
+  if (typeof settings !== 'undefined') settings.autoMem = false;
+
+  // 2. Sync toggles to OFF after DOM is ready
+  function syncToggles() {
+    ['tog-auto-mem','tog-auto-mem-s'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('on');
+    });
+  }
+  setTimeout(syncToggles, 800);
+  setTimeout(syncToggles, 2000);
+
+  // 3. Show a dismissible warning banner if any memories are stored
+  function showMemBanner() {
+    const storedMem = (() => { try { return JSON.parse(localStorage.getItem('daveai_mem10') || '[]'); } catch(e) { return []; } })();
+    if (!storedMem.length) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'mem-fix-banner';
+    banner.style.cssText = [
+      'position:fixed','bottom:90px','left:50%','transform:translateX(-50%)','z-index:9999',
+      'background:#1a1e25','border:1px solid rgba(251,191,36,.5)','border-radius:10px',
+      'padding:12px 18px','display:flex','align-items:center','gap:12px',
+      'box-shadow:0 4px 24px rgba(0,0,0,.6)','max-width:480px','width:90%',
+      "font-family:'DM Sans',sans-serif"
+    ].join(';');
+
+    const count = storedMem.length;
+    banner.innerHTML =
+      '<span style="font-size:20px">&#129504;</span>' +
+      '<div style="flex:1;font-size:13px;color:#e8eaf0;line-height:1.4">' +
+        '<strong style="color:#fbbf24">' + count + ' saved memory item(s)</strong> are being injected into every chat.<br>' +
+        '<span style="color:#9ba3b2">Old sessions (including past topics) are leaking into new chats. Clear to fix.</span>' +
+      '</div>' +
+      '<button id="mem-clear-btn" style="' +
+        'background:linear-gradient(135deg,#fbbf24,#f97316);border:none;border-radius:8px;' +
+        'color:#0d0f12;font-weight:700;font-size:12px;padding:7px 14px;cursor:pointer;' +
+        "font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0;" +
+      '">Clear Now</button>' +
+      '<button id="mem-dismiss-btn" style="' +
+        'background:none;border:none;color:#5a6275;cursor:pointer;font-size:18px;padding:0 2px;flex-shrink:0;' +
+      '">&times;</button>';
+
+    document.body.appendChild(banner);
+
+    document.getElementById('mem-dismiss-btn').onclick = function() {
+      document.getElementById('mem-fix-banner').remove();
+    };
+    document.getElementById('mem-clear-btn').onclick = function() {
+      if (confirm('Clear all ' + count + ' stored memories? This stops old sessions from affecting new chats.')) {
+        localStorage.setItem('daveai_mem10','[]');
+        if (typeof memories !== 'undefined') { memories.length = 0; }
+        if (typeof renderMemoryList === 'function') renderMemoryList();
+        var b = document.getElementById('mem-fix-banner');
+        if (b) b.remove();
+        if (typeof showToast === 'function') showToast('Memories cleared — chats are clean!');
+      }
+    };
+  }
+
+  setTimeout(showMemBanner, 1500);
+})();
+
 </script>
 
 </body>
